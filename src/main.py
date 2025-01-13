@@ -66,4 +66,4 @@ class Main():
         file['negative_image'] = responders_negative_image_CPS_NC + responders_negative_image_control_NC + nonresponders_negative_image_CPS_NC + nonresponders_negative_image_control_NC + responders_negative_image_CPS_HC + responders_negative_image_control_HC + nonresponders_negative_image_CPS_HC + nonresponders_negative_image_control_HC
         self.file = file
 
-print(Main().file.head(40))
+Main().file.to_csv(r"C:/Users/matan/OneDrive/מסמכים/output.csv", index=False)
