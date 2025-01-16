@@ -2,7 +2,8 @@
 # README: Hormonal Contraceptives and Stress Responses Analysis
 
 ## Project Overview:
-This project focuses on analyzing the effects of hormonal contraceptives (HC) versus natural cycling (NC) on physiological and cognitive responses. The primary objectives are:
+This project focuses on analyzing the effects of hormonal contraceptives (HC) versus natural cycling (NC) on physiological and cognitive responses. In this project we created the dataset based on the article stated below.
+The primary objectives are:
 
 1. Investigating differences in cortisol and sAA responses to stress and emotional stimuli between HC and NC groups.
 2. Analyzing memory performance for positive and negative emotional stimuli in both groups.
@@ -26,8 +27,9 @@ The project includes:
    - Bar plots for group comparisons.
    - Heatmaps for interaction effects.
    - Custom annotations to highlight trends and statistical results.
+   - Scatter plotts to highlight the difference between different subjects.
 
-## Requirements
+## Requirements to Run the Project: 
 
 ### Libraries
 The project relies on the following Python libraries:
@@ -58,17 +60,25 @@ project/
 ```
 
 ### Input Data
-The dataset (`data set.csv`) should be placed in:
+The article this project is based on: https://www.sciencedirect.com/science/article/pii/S030105111200227X?casa_token=6mF9uyf9pG0AAAAA:NttZLVmGWyY23ebrkeIKdyGmkCVWjnhCh-rrX68G-_GRPDRo_ByrC6Va1VWrBhtVsOIwUMflkA 
+Link to the dataset before adding the runtime simulated data:
+https://drive.google.com/file/d/1nVZVmDqx3acpP1rcA6QXBXQwCeW2M7yt/view?usp=sharing
+
+Link to the dataset after adding the runtime simulated data: 
+This is the full dataset: 
+https://drive.google.com/file/d/111uVm2qm3GnVWHJ4HI5ofEM6yOwBp8MN/view?usp=sharing
+
 ```
-C:\Users\matan\OneDrive\מסמכים
+[C:\PATH-TO-WHERE-THE-DATA-IS-DOWNLOADED\]
 ```
 
 ## How to Run
 
 1. **Initialization**:
    - `InitializeFile` creates the dataset with generated values.
+   - Download the dataset 
 
-2. **Key Functions**:
+3. **Key Functions**:
    - `plot_difference_sAA_responses`: Compares sAA changes between HC and NC groups.
    - `statistics_of_sAA_responses`: Visualizes ANOVA results and summary statistics for sAA responses.
    - `plot_positive_images_responses`: Analyzes memory performance for positive images.
@@ -77,7 +87,7 @@ C:\Users\matan\OneDrive\מסמכים
    - `calculate_two_way_anova_with_viz_negative`: Performs two-way ANOVA and visualizes results for negative stimuli.
    - `plot_results`: Visualizes Chi-square test results.
 
-3. **Execution**:
+4. **Execution**:
 Run the script from the root directory using:
 ```bash
 python main.py
@@ -87,9 +97,11 @@ python main.py
 - **Plots**:
   - Bar plots comparing HC and NC groups for various metrics.
   - Heatmaps showing interaction effects of responders and non-responders.
+  - Scatter plots showing the effcts of baseline SAA and Cortisol levels on the reaction to the CPS test HC and NC.
 - **Statistical Tables**:
   - ANOVA tables visualized as bar plots.
   - Summary tables for sAA and cortisol responses.
+  - Linear Regression graphs. 
 
 ## Example Workflow
 ```python
