@@ -88,8 +88,8 @@ https://drive.google.com/file/d/111uVm2qm3GnVWHJ4HI5ofEM6yOwBp8MN/view?usp=shari
    - `plot_positive_images_responses`: Analyzes memory performance for positive images.
    - `visualizions_two_way_anova`: Performs two-way ANOVA and visualizes results for stimuli.
    - `plot_negative_images_responses`: Analyzes memory performance for negative images.
-   - `plot_effect_baseline_cortisol_sAA_linear_regression`:
-   - `plot_cortisol_phase_pill_effect`: 
+   - `plot_effect_baseline_cortisol_sAA_linear_regression`: Calculates the Linear Regression of the effects of baseline cortisol and sAA on the results of the CPS tests.
+   - `plot_cortisol_phase_pill_effect`: Analyzes the effects of pill type in HC women and cycle phase in NC women on baseline cortisol.
    - `plot_difference_of_cortisol_chi2`: Visualizes Chi-square test results.
 
 4. **Execution**:
@@ -101,12 +101,14 @@ python main.py
 ## Outputs
 - **Plots**:
   - Bar plots comparing HC and NC groups for various metrics.
-  - Heatmaps showing interaction effects of responders and non-responders.
+  - Heatmaps showing interaction effects of responders/non-responders, NC/HC based on memory performance.
   - Scatter plots showing the effcts of baseline SAA and Cortisol levels on the reaction to the CPS test HC and NC.
+    
 - **Statistical Tables**:
   - ANOVA tables visualized as bar plots.
   - Summary tables for sAA and cortisol responses.
-  - Linear Regression graphs. 
+  - Linear Regression graphs.
+  - ChiSquare represented as bar plot.
 
 ## Example Workflow
 ```python
