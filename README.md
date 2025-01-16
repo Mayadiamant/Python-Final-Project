@@ -110,6 +110,33 @@ python main.py
   - Linear Regression graphs.
   - ChiSquare represented as bar plot.
 
+## Health check (Lint/Tests/Tests-Coverage):
+#### Lint Project:
+Check formatting, type hinting, lint code & docstrings
+```bash
+tox run -e lint
+```
+#### Test Project: 
+Run all tests on diffrent python versions and produce tests-coverage and tests-results reports (make sure tested versions installed before run):
+```bash
+tox run -f test
+```
+#### Lint and Test project (on diffrent python versions):
+```bash
+tox run
+```
+
+## Build/pack the project (should run on every version change)
+```bash
+python -m build
+```
+
+### $${\color{red} TBD}$$:
+#### Package documentation:
+```bash
+tox run -e docs
+```
+
 ## Example Workflow
 ```python
 # Initialize dataset
