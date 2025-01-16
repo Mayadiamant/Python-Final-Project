@@ -126,5 +126,3 @@ calculate_two_way_anova_with_viz_negative(file)
 ## Notes
 - Ensure all paths are correctly specified for importing modules and accessing datasets.
 - Use `np.random.seed()` to reproduce synthetic data consistently.
-- Modify `threshold` and other parameters in visualizations for specific analyses.
-
