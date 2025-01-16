@@ -131,7 +131,6 @@ tox run
 python -m build
 ```
 
-### $${\color{red} TBD}$$:
 #### Package documentation:
 ```bash
 tox run -e docs
