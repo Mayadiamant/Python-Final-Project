@@ -19,6 +19,8 @@ The project includes:
    - One-way ANOVA for group-level comparisons.
    - Two-way ANOVA for interaction effects between responders and non-responders.
    - Chi-square test for independence between groups.
+   - Linear regression for trends.
+   
 
 3. **Visualization**:
    - Bar plots for group comparisons.
