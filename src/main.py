@@ -1,69 +1,61 @@
-import sys
-sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src\objects')
-from Woman import Woman
-import sys
-sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src\functions')
-from general import generate_numbers_with_stats
-from general import split_list
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
+import sys
+import seaborn as sns
+from scipy.stats import f_oneway, linregress
+sys.path.append(r'C:/Users/matan/OneDrive/שולחן העבודה/python/project/src/objects')
+sys.path.append(r'C:/Users/matan/OneDrive/שולחן העבודה/python/project/src/functions')
+from objects.initializeFile import InitializeFile
+from functions.general import prepare_data_from_csv
+from functions.visualization import (
+    plot_difference_sAA_responses,
+    statistics_of_sAA_responses,
+    plot_positive_images_responses,
+    plot_negative_images_responses,
+    plot_difference_of_cortisol_chi2,
+    plot_affect_basleline_cortisol_sAA_linear_regressions,
+    heatMap,
+    vizualizations_two_way_anova,
+    plot_cortisol_phase_pill_effects
+)
+from functions.calculate import (
+    analyze_saa_response,
+    calculate_two_way_anova_with_viz_positive,
+    calculate_two_way_anova_with_viz_negative,
+    chi_square,
+    analyze_cortisol_data
+)
+
+file = InitializeFile().file
+file.to_csv(r'C:\Users\matan\OneDrive\מסמכים\new_output.csv', index=False)
+
+plot_difference_sAA_responses(file)
+results = analyze_saa_response(file)
+statistics_of_sAA_responses(results)
+
+prepared_data = prepare_data_from_csv(file)
+chi2, p, contingency_table = chi_square(prepared_data)
+plot_difference_of_cortisol_chi2(prepared_data, chi2, p)
+
+plot_positive_images_responses(file)
+group_means_positive, anova_table_positive = calculate_two_way_anova_with_viz_positive(file)
+heatMap(group_means_positive, 'positive_image')
+vizualizations_two_way_anova(anova_table_positive)
+
+plot_negative_images_responses(file)
+group_means_negative, anova_table_negative = calculate_two_way_anova_with_viz_negative(file)
+heatMap(group_means_negative, 'negative_image')
+vizualizations_two_way_anova(anova_table_negative)
+
+plot_affect_basleline_cortisol_sAA_linear_regressions(file)
+
+anova_nc_baseline, anova_nc_change, anova_hc_baseline, anova_hc_change, nc_data, hc_data = analyze_cortisol_data(file)
+plot_cortisol_phase_pill_effects(anova_nc_baseline, anova_nc_change, anova_hc_baseline, anova_hc_change, nc_data, hc_data)
 
 
-class Main():
-    def __init__(self):
-        file = pd.read_csv("C:/Users/matan/OneDrive/שולחן העבודה/dataSet.csv")
-        # Generate numbers 
-        # Partially based on means and standard deviation based on data extraction from graphs
-        np.random.seed(42)  # For reproducibility
-        age = generate_numbers_with_stats(78, 20.37, 2.37, 18, 35)
-        BMI_HC = generate_numbers_with_stats(36, 22.15, 3.98, 13, 33)
-        BMI_NC = generate_numbers_with_stats(42, 21.78, 2.71, 13, 33)
-        responders_images_sAA_level_HC = generate_numbers_with_stats(17, 33.5, 10, 10, 50)
-        responders_images_sAA_level_NC = generate_numbers_with_stats(22, 55, 15, 30, 68)
-        nonresponders_images_sAA_level_HC = generate_numbers_with_stats(19, -45, 8, -50, -40)
-        nonresponders_images_sAA_level_NC = generate_numbers_with_stats(20, -17, 4, -22, -15)
-        responders_images_sAA_level_HC_baseline = generate_numbers_with_stats(17, 70, 10, 60, 80)
-        responders_images_sAA_level_NC_baseline = generate_numbers_with_stats(22, 135, 10, 125, 145)
-        nonresponders_images_sAA_level_HC_baseline = generate_numbers_with_stats(19, 175, 10, 165, 185)
-        nonresponders_images_sAA_level_NC_baseline = generate_numbers_with_stats(20, 120, 10, 110, 130)
-        responders_CPS_corisol_level_HC = generate_numbers_with_stats(9 , 0.2, 0.02, 0.18, 0.22)
-        responders_CPS_cortisol_level_NC = generate_numbers_with_stats(17, 0.25, 0.02, 0.2, 0.3)
-        nonresponders_CPS_cortisol_level_HC = generate_numbers_with_stats(14 , -0.03, 0.005, -0.04, -0.02)
-        nonresponders_CPS_cortisol_level_NC = generate_numbers_with_stats(7 , -0.007, 0.0005, -0.02, 0)
-        responders_CPS_corisol_level_HC_baseline = generate_numbers_with_stats(9 , 0.075, 0.005, 0.07, 0.08)
-        responders_CPS_cortisol_level_NC_baseline = generate_numbers_with_stats(17 , 0.135, 0.005, 0.13, 0.14)
-        nonresponders_CPS_cortisol_level_HC_baseline = generate_numbers_with_stats(14 , 0.23, 0.01, 0.22, 0.24)
-        nonresponders_CPS_cortisol_level_NC_baseline = generate_numbers_with_stats(7 , 0.123, 0.005, 0.118, 0.128)
-        responders_positive_image_CPS_HC = generate_numbers_with_stats(10 , 2.8, 0.1, 2.7, 2.8)
-        responders_positive_image_CPS_NC = generate_numbers_with_stats(12 , 2.6, 0.1, 2.5, 2.7)
-        responders_positive_image_control_HC = generate_numbers_with_stats(7 , 1.2, 0.05, 1.15, 1.25)
-        responders_positive_image_control_NC = generate_numbers_with_stats(10 , 2.2, 0.1, 2.1, 2.3)
-        nonresponders_positive_image_CPS_HC = generate_numbers_with_stats(13 , 3.4, 0.03, 3.37, 3.43)
-        nonresponders_positive_image_CPS_NC = generate_numbers_with_stats(12 , 2.7, 0.15, 2.55, 2.85)
-        nonresponders_positive_image_control_HC = generate_numbers_with_stats(6 , 1.05, 0.1, 0.95, 1.15)
-        nonresponders_positive_image_control_NC = generate_numbers_with_stats(8 , 2.9, 0.1, 2.8, 3)
-        responders_negative_image_CPS_HC = generate_numbers_with_stats(10 , 2.9, 0.15, 2.75, 3.05)
-        responders_negative_image_CPS_NC = generate_numbers_with_stats(12 , 3.4, 0.08, 3.32, 3.48)
-        responders_negative_image_control_HC = generate_numbers_with_stats(7, 4.7, 0.02, 4.68, 4.72)
-        responders_negative_image_control_NC = generate_numbers_with_stats(10, 3.2, 0.1, 3.1, 3.3)
-        nonresponders_negative_image_CPS_HC = generate_numbers_with_stats(13 , 4, 0.3, 3.7, 4.3)
-        nonresponders_negative_image_CPS_NC = generate_numbers_with_stats(12 , 3.2, 0.15, 3.05, 3.35)
-        nonresponders_negative_image_control_HC = generate_numbers_with_stats(6 , 3, 0.2, 2.8, 3.2)
-        nonresponders_negative_image_control_NC = generate_numbers_with_stats(8 , 2.9, 0.1, 2.8, 3)
-        part_one_responders_CPS_cortisol_level_NC_baseline , part_two_responders_CPS_cortisol_level_NC_baseline = split_list(responders_CPS_cortisol_level_NC_baseline, 12)
-        part_one_nonresponders_CPS_cortisol_level_HC_baseline , part_two_nonresponders_CPS_cortisol_level_HC_baseline = split_list(nonresponders_CPS_cortisol_level_HC_baseline, 1)
-        part_one_responders_CPS_cortisol_level_NC , part_two_responders_CPS_cortisol_level_NC = split_list(responders_CPS_cortisol_level_NC, 12)
-        part_one_nonresponders_CPS_cortisol_level_HC , part_two_nonresponders_CPS_cortisol_level_HC = split_list(nonresponders_CPS_cortisol_level_HC, 1)
-        empty_cell = [" "]
-        file['age'] = age
-        file['BMI'] = BMI_NC + BMI_HC 
-        file['sAA_level_baseline'] = responders_images_sAA_level_NC_baseline + nonresponders_images_sAA_level_NC_baseline + responders_images_sAA_level_HC_baseline + nonresponders_images_sAA_level_HC_baseline
-        file['change_image_sAA_level'] = responders_images_sAA_level_NC + nonresponders_images_sAA_level_NC + responders_images_sAA_level_HC + nonresponders_images_sAA_level_HC
-        file['CPS_level_baseline'] = part_one_responders_CPS_cortisol_level_NC_baseline+ 10*empty_cell+ part_two_responders_CPS_cortisol_level_NC_baseline + nonresponders_CPS_cortisol_level_NC_baseline + 8*empty_cell + responders_CPS_corisol_level_HC_baseline + part_one_nonresponders_CPS_cortisol_level_HC_baseline + 7*empty_cell + part_two_nonresponders_CPS_cortisol_level_HC_baseline + 6*empty_cell
-        file['change_CPS_cortisol_level'] =  part_one_responders_CPS_cortisol_level_NC+ 10*empty_cell+ part_two_responders_CPS_cortisol_level_NC + nonresponders_CPS_cortisol_level_NC + 8*empty_cell + responders_CPS_corisol_level_HC + part_one_nonresponders_CPS_cortisol_level_HC + 7*empty_cell + part_two_nonresponders_CPS_cortisol_level_HC + 6*empty_cell
-        file['positive_image'] = responders_positive_image_CPS_NC + responders_positive_image_control_NC + nonresponders_positive_image_CPS_NC + nonresponders_positive_image_control_NC + responders_positive_image_CPS_HC + responders_positive_image_control_HC + nonresponders_positive_image_CPS_HC + nonresponders_positive_image_control_HC
-        file['negative_image'] = responders_negative_image_CPS_NC + responders_negative_image_control_NC + nonresponders_negative_image_CPS_NC + nonresponders_negative_image_control_NC + responders_negative_image_CPS_HC + responders_negative_image_control_HC + nonresponders_negative_image_CPS_HC + nonresponders_negative_image_control_HC
-        self.file = file
 
-Main().file.to_csv(r"C:/Users/matan/OneDrive/מסמכים/output.csv", index=False)
+
+
+
+
+
+

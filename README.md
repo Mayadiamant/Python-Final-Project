@@ -1,0 +1,114 @@
+<div><br class="Apple-interchange-newline">:nerd_face:
+# README: Hormonal Contraceptives and Stress Responses Analysis
+
+## Project Overview:
+This project focuses on analyzing the effects of hormonal contraceptives (HC) versus natural cycling (NC) on physiological and cognitive responses. The primary objectives are:
+
+1. Investigating differences in cortisol and sAA responses to stress and emotional stimuli between HC and NC groups.
+2. Analyzing memory performance for positive and negative emotional stimuli in both groups.
+3. Conducting statistical analyses such as ANOVA and Chi-square tests to uncover significant patterns.
+
+## Project Structure:
+The project includes:
+
+1. **Data Generation and Initialization**:
+   - Synthetic data generation based on means and standard deviations from extracted graphs.
+   - Data includes variables such as cortisol levels, sAA levels, BMI, and memory performance.
+
+2. **Statistical Analysis**:
+   - One-way ANOVA for group-level comparisons.
+   - Two-way ANOVA for interaction effects between responders and non-responders.
+   - Chi-square test for independence between groups.
+
+3. **Visualization**:
+   - Bar plots for group comparisons.
+   - Heatmaps for interaction effects.
+   - Custom annotations to highlight trends and statistical results.
+
+## Requirements
+
+### Libraries
+The project relies on the following Python libraries:
+- `pandas`
+- `numpy`
+- `matplotlib`
+- `seaborn`
+- `statsmodels`
+- `scipy`
+
+Install the required libraries using:
+```bash
+pip install pandas numpy matplotlib seaborn statsmodels scipy
+```
+
+### Folder Structure
+Ensure the following directory structure:
+```
+project/
+|-- src/
+    |-- objects/
+        |-- initializeFile.py
+        |-- Woman.py
+    |-- functions/
+        |-- visualization.py
+        |-- calculate.py
+        |-- general.py
+```
+
+### Input Data
+The dataset (`data set.csv`) should be placed in:
+```
+C:\Users\matan\OneDrive\מסמכים
+```
+
+## How to Run
+
+1. **Initialization**:
+   - `InitializeFile` creates the dataset with generated values.
+
+2. **Key Functions**:
+   - `plot_difference_sAA_responses`: Compares sAA changes between HC and NC groups.
+   - `statistics_of_sAA_responses`: Visualizes ANOVA results and summary statistics for sAA responses.
+   - `plot_positive_images_responses`: Analyzes memory performance for positive images.
+   - `calculate_two_way_anova_with_viz_positive`: Performs two-way ANOVA and visualizes results for positive stimuli.
+   - `plot_negative_images_responses`: Analyzes memory performance for negative images.
+   - `calculate_two_way_anova_with_viz_negative`: Performs two-way ANOVA and visualizes results for negative stimuli.
+   - `plot_results`: Visualizes Chi-square test results.
+
+3. **Execution**:
+Run the script from the root directory using:
+```bash
+python main.py
+```
+
+## Outputs
+- **Plots**:
+  - Bar plots comparing HC and NC groups for various metrics.
+  - Heatmaps showing interaction effects of responders and non-responders.
+- **Statistical Tables**:
+  - ANOVA tables visualized as bar plots.
+  - Summary tables for sAA and cortisol responses.
+
+## Example Workflow
+```python
+# Initialize dataset
+file = InitializeFile().file
+
+# Plot differences in sAA responses
+plot_difference_sAA_responses(file)
+
+# Analyze and visualize sAA response statistics
+results = analyze_saa_response(file)
+statistics_of_sAA_responses(results)
+
+# Analyze positive and negative image memory performance
+plot_positive_images_responses(file)
+calculate_two_way_anova_with_viz_positive(file)
+plot_negative_images_responses(file)
+calculate_two_way_anova_with_viz_negative(file)
+```
+
+## Notes
+- Ensure all paths are correctly specified for importing modules and accessing datasets.
+- Use `np.random.seed()` to reproduce synthetic data consistently.
+- Modify `threshold` and other parameters in visualizations for specific analyses.
