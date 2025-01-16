@@ -60,17 +60,15 @@ project/
 ```
 
 ### Input Data
-The article this project is based on: https://www.sciencedirect.com/science/article/pii/S030105111200227X?casa_token=6mF9uyf9pG0AAAAA:NttZLVmGWyY23ebrkeIKdyGmkCVWjnhCh-rrX68G-_GRPDRo_ByrC6Va1VWrBhtVsOIwUMflkA 
+The article this project is based on: 
+https://www.sciencedirect.com/science/article/pii/S030105111200227X?casa_token=6mF9uyf9pG0AAAAA:NttZLVmGWyY23ebrkeIKdyGmkCVWjnhCh-rrX68G-_GRPDRo_ByrC6Va1VWrBhtVsOIwUMflkA 
+
 Link to the dataset before adding the runtime simulated data:
 https://drive.google.com/file/d/1nVZVmDqx3acpP1rcA6QXBXQwCeW2M7yt/view?usp=sharing
 
 Link to the dataset after adding the runtime simulated data: 
 This is the full dataset: 
 https://drive.google.com/file/d/111uVm2qm3GnVWHJ4HI5ofEM6yOwBp8MN/view?usp=sharing
-
-```
-[C:\PATH-TO-WHERE-THE-DATA-IS-DOWNLOADED\]
-```
 
 ## How to Run
 
