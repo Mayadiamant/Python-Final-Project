@@ -1,75 +1,115 @@
 :nerd_face:
-A well-written README provides essential information about your project,
-such as installation instructions, usage examples and contributions guidelines.
+# README: Hormonal Contraceptives and Stress Responses Analysis
 
-# List of usefull commands:
-all command should run under project root/working-directory
+## Project Overview
+This project focuses on analyzing the effects of hormonal contraceptives (HC) versus natural cycling (NC) on physiological and cognitive responses. The primary objectives are:
 
-## On first run:
-```bash 
-#install Virtualenv is - a tool to set up your Python environments
-pip install virtualenv
-#create virtual environment (serve only this project):
-python -m venv venv
-#activate virtual environment
-.\venv\Scripts\activate 
-+ (venv) should appear as prefix to all command (run next command just after activating venv)
-#update venv's python package-installer (pip) to its latest version
-pip install --upgrade pip
-#install projects packages
-pip install -e .[dev]     
-``` 
+1. Investigating differences in cortisol and sAA responses to stress and emotional stimuli between HC and NC groups.
+2. Analyzing memory performance for positive and negative emotional stimuli in both groups.
+3. Conducting statistical analyses such as ANOVA and Chi-square tests to uncover significant patterns.
 
-## Modify package dependencies (add/remove/update external modules/packages):
-#### Add new module:
-1. Add package to pyproject.toml
-2. Run:
-```bash 
-pip install -e .[dev]
-``` 
+## Project Structure
+The project includes:
 
-#### Remove new module:
-1. Remove the package from pyproject.toml
-2. Run:
-```bash 
-pip uninstall <package-name>
-```
-note: if you're don't remember the exact package name copy it from: 
+1. **Data Generation and Initialization**:
+   - Synthetic data generation based on means and standard deviations from extracted graphs.
+   - Data includes variables such as cortisol levels, sAA levels, BMI, and memory performance.
+
+2. **Statistical Analysis**:
+   - One-way ANOVA for group-level comparisons.
+   - Two-way ANOVA for interaction effects between responders and non-responders.
+   - Chi-square test for independence between groups.
+
+3. **Visualization**:
+   - Bar plots for group comparisons.
+   - Heatmaps for interaction effects.
+   - Custom annotations to highlight trends and statistical results.
+
+## Requirements
+
+### Libraries
+The project relies on the following Python libraries:
+- `pandas`
+- `numpy`
+- `matplotlib`
+- `seaborn`
+- `statsmodels`
+- `scipy`
+
+Install the required libraries using:
 ```bash
-pip list
+pip install pandas numpy matplotlib seaborn statsmodels scipy
 ```
 
-#### Steps in case of a package failure:
-Cases like package installation interuppted in the middle or something like that
-1. Try to remove package and install it again.
-2. If it doesn't help delete venv folder 
-3. repeat 'On first run' steps
-
-
-## Health check (Lint/Tests/Tests-Coverage):
-#### Lint Project:
-Check formatting, type hinting, lint code & docstrings
-```bash
-tox run -e lint
+### Folder Structure
+Ensure the following directory structure:
 ```
-#### Test Project: 
-Run all tests on diffrent python versions and produce tests-coverage and tests-results reports (make sure tested versions installed before run):
-```bash
-tox run -f test
-```
-#### Lint and Test project (on diffrent python versions):
-```bash
-tox run
+project/
+|-- src/
+    |-- objects/
+        |-- initializeFile.py
+        |-- Woman.py
+    |-- functions/
+        |-- visualization.py
+        |-- calculate.py
+        |-- general.py
 ```
 
-## Build/pack the project (should run on every version change)
-```bash
-python -m build
+### Input Data
+The dataset (`data set.csv`) should be placed in:
+```
+C:\Users\matan\OneDrive\מסמכים
 ```
 
-### $${\color{red} TBD}$$:
-#### Package documentation:
+## How to Run
+
+1. **Initialization**:
+   - `InitializeFile` creates the dataset with generated values.
+
+2. **Key Functions**:
+   - `plot_difference_sAA_responses`: Compares sAA changes between HC and NC groups.
+   - `statistics_of_sAA_responses`: Visualizes ANOVA results and summary statistics for sAA responses.
+   - `plot_positive_images_responses`: Analyzes memory performance for positive images.
+   - `calculate_two_way_anova_with_viz_positive`: Performs two-way ANOVA and visualizes results for positive stimuli.
+   - `plot_negative_images_responses`: Analyzes memory performance for negative images.
+   - `calculate_two_way_anova_with_viz_negative`: Performs two-way ANOVA and visualizes results for negative stimuli.
+   - `plot_results`: Visualizes Chi-square test results.
+
+3. **Execution**:
+Run the script from the root directory using:
 ```bash
-tox run -e docs
+python main.py
 ```
+
+## Outputs
+- **Plots**:
+  - Bar plots comparing HC and NC groups for various metrics.
+  - Heatmaps showing interaction effects of responders and non-responders.
+- **Statistical Tables**:
+  - ANOVA tables visualized as bar plots.
+  - Summary tables for sAA and cortisol responses.
+
+## Example Workflow
+```python
+# Initialize dataset
+file = InitializeFile().file
+
+# Plot differences in sAA responses
+plot_difference_sAA_responses(file)
+
+# Analyze and visualize sAA response statistics
+results = analyze_saa_response(file)
+statistics_of_sAA_responses(results)
+
+# Analyze positive and negative image memory performance
+plot_positive_images_responses(file)
+calculate_two_way_anova_with_viz_positive(file)
+plot_negative_images_responses(file)
+calculate_two_way_anova_with_viz_negative(file)
+```
+
+## Notes
+- Ensure all paths are correctly specified for importing modules and accessing datasets.
+- Use `np.random.seed()` to reproduce synthetic data consistently.
+- Modify `threshold` and other parameters in visualizations for specific analyses.
 
