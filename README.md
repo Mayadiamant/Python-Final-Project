@@ -58,7 +58,6 @@ project/
 |-- src/
     |-- objects/
         |-- initializeFile.py
-        |-- Woman.py
     |-- functions/
         |-- visualization.py
         |-- calculate.py
