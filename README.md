@@ -1,5 +1,5 @@
 :nerd_face:
-# README: Hormonal Contraceptives and Stress Responses Analysis
+# README: Hormonal Contraceptives and Stress and Memmory Responses Analysis
 
 ## Project Overview:
 This project focuses on analyzing the effects of hormonal contraceptives (HC) versus natural cycling (NC) on physiological and cognitive responses.
