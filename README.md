@@ -2,7 +2,9 @@
 # README: Hormonal Contraceptives and Stress Responses Analysis
 
 ## Project Overview:
-This project focuses on analyzing the effects of hormonal contraceptives (HC) versus natural cycling (NC) on physiological and cognitive responses. In this project we created the dataset based on the article stated below.
+This project focuses on analyzing the effects of hormonal contraceptives (HC) versus natural cycling (NC) on physiological and cognitive responses.
+In this project we created the dataset based on the article stated below.  
+
 The primary objectives are:
 
 1. Investigating differences in cortisol and sAA responses to stress and emotional stimuli between HC and NC groups.
