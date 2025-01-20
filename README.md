@@ -55,7 +55,6 @@ pip install pandas numpy matplotlib seaborn statsmodels scipy
 Ensure the following directory structure:
 ```
 project/
-|-- doc/
 |-- src/
     |-- objects/
         |-- initializeFile.py
