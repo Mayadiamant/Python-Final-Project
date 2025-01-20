@@ -3,19 +3,102 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
+from scipy.stats import f_oneway
 import sys
 sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src')
 sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src\functions')
 sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src\objects')
 
-def plot_difference_sAA_responses(data): 
+def plot_difference_of_cortisol_chi2(data: pd.DataFrame, chi2: float, p: float, threshold: float=0.055) ->None:
+    """
+    Creates a bar plot comparing the number of cortisol responders and non-responders in two groups 
+    (Naturally Cycling (NC) and Hormonal Contraceptive (HC) women). The function includes annotations, 
+    a trend line, and statistical information.
 
+    Parameters:
+        data (df.DataFrame): The DataFrame we perform the analysis on.
+        chi2 (float): The Chi-square statistic value.
+        p (float): The p-value associated with the Chi-square test.
+        threshold (float, optional): The threshold for defining responders in μg/dL. Default is 0.055.
+
+    Returns:
+        None: This function generates and displays a plot but does not return any value.
+    """
+
+     # Create figure and axis
+    plt.figure(figsize=(8, 6))
+    
+    # Plot bars
+    bar_width = 0.35
+    x = range(len(data['Group']))
+    
+    # Plot Responders and Non-Responders bars
+    plt.bar(x, data['Responders'], bar_width, color='#E6E6FA', label='Responders')
+    plt.bar([i + bar_width for i in x], data['Non-Responders'], bar_width, 
+            color='#87CEFA', label='Non-Responders')
+    
+    # Customize the plot
+    plt.title('Number of CPS Cortisol Responders and Non-Responders in\n'
+              'Naturally Cycling (NC) and Hormonal Contraceptive (HC) Women')
+    plt.xlabel('Contraceptive Group')
+    plt.ylabel('Number of Participants')
+    
+    # Set x-axis ticks
+    plt.xticks([i + bar_width/2 for i in x], data['Group'])
+    
+    # Add trend line
+    plt.plot([0 + bar_width/2, 1 + bar_width/2], 
+             [data['Responders'].iloc[0], data['Responders'].iloc[1]],
+             'k--', label='Trend Line')
+    
+    # Add 'Higher Responders in NC' annotation
+    plt.annotate('Higher Responders in NC',
+                xy=(1 + bar_width/2, data['Responders'].iloc[1]),
+                xytext=(0.5 + bar_width/2, data['Responders'].max() + 2),
+                arrowprops=dict(facecolor='black', arrowstyle='->'),
+                ha='center')
+    
+    # Set y-axis limit to match reference
+    plt.ylim(0, 30)
+    
+    # Add legend
+    plt.legend(loc='upper right')
+    
+    # Add statistical information
+    plt.figtext(0.15, 0.02,
+                f"Threshold used for defining responders: {threshold:.3f} μg/dL\n"
+                f"Chi-square statistic: {chi2:.2f}\n"
+                f"p-value: {p:.4f}\n"
+                "No statistically significant difference (p ≥ 0.05)",
+                fontsize=8)
+    
+    # Adjust layout
+    plt.tight_layout()
+    plt.subplots_adjust(bottom=0.2)
+    plt.show()
+
+def plot_difference_sAA_responses(data: pd.DataFrame) -> None: 
+
+    """
+    Plots the difference in salivary alpha-amylase (sAA) responses between women in HC (Hormonal Contraceptive) 
+    and NC (Natural Cycle) groups based on the provided data.
+
+    Parameters:
+        data (pd.DataFrame): The DataFrame we perform the analysis on
+
+    Returns:
+        None: The function generates a bar plot but does not return any value
+    """
+
+    # Extract groups from the DataFrame. 
     groups = {
          'NC': data['change_image_sAA_level'][:42],
          'HC': data['change_image_sAA_level'][42:],
      }
 
+
     plt.figure(figsize=(8, 6))
+    # Create a bar plot with labels and formatting, calculate the mean for each group as the Y axis.
     plt.bar(['HC Women', 'NC Women'], [np.mean(groups['HC']),np.mean(groups['NC'])], capsize=5, color=['#4A6D7C', '#475657'], alpha=0.8)
     plt.title('difference sAA responses: between women in the HC group and the NC group', fontsize=10, weight='bold')
     plt.ylabel('sAA Change (U/mL)\nSEM', fontsize=12)
@@ -24,12 +107,15 @@ def plot_difference_sAA_responses(data):
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     plt.show()
 
-def statistics_of_sAA_responses(results):
+def statistics_of_sAA_responses(results: dict) -> None:
     """
-    Display sAA response analysis results as a visual table
+    Display sAA response Anova analysis results as a visual table
    
     Parameters:
     results (dict): Dictionary containing ANOVA, effect size, and summary statistics
+
+    Returns:
+        None: The function generates a table plot but does not return any value
     """
     # Prepare the data for visualization
     table_data = []
@@ -60,172 +146,21 @@ def statistics_of_sAA_responses(results):
 
     plt.show()
 
-def plot_difference_of_cortisol_chi2(df, chi2, p, threshold=0.055):
+
+def plot_affect_basleline_cortisol_sAA_linear_regressions(data: pd.DataFrame) -> None:
     """
-    Creates the final visualization matching the reference image.
+    Creates scatter plots with linear regression lines for:
+    1. SAA Level Baseline vs Change in Cortisol Level
+    2. Cortisol Level Baseline vs Change in Cortisol Level
+    for two groups: Naturally Cycling (NC) and Hormonal Contraceptive (HC).
+
+    Parameters:
+        data (pd.DataFrame): The DataFrame we perform the analysis on
+
+    Returns:
+        None: The function generates and displays scatter plots with regression lines.
     """
-    # Create figure and axis
-    plt.figure(figsize=(8, 6))
-    
-    # Plot bars
-    bar_width = 0.35
-    x = range(len(df['Group']))
-    
-    # Plot Responders and Non-Responders bars
-    plt.bar(x, df['Responders'], bar_width, color='gray', label='Responders')
-    plt.bar([i + bar_width for i in x], df['Non-Responders'], bar_width, 
-            color='lightgray', label='Non-Responders')
-    
-    # Customize the plot
-    plt.title('Number of CPS Cortisol Responders and Non-Responders in\n'
-              'Naturally Cycling (NC) and Hormonal Contraceptive (HC) Women')
-    plt.xlabel('Contraceptive Group')
-    plt.ylabel('Number of Participants')
-    
-    # Set x-axis ticks
-    plt.xticks([i + bar_width/2 for i in x], df['Group'])
-    
-    # Add trend line
-    plt.plot([0 + bar_width/2, 1 + bar_width/2], 
-             [df['Responders'].iloc[0], df['Responders'].iloc[1]],
-             'k--', label='Trend Line')
-    
-    # Add 'Higher Responders in NC' annotation
-    plt.annotate('Higher Responders in NC',
-                xy=(1 + bar_width/2, df['Responders'].iloc[1]),
-                xytext=(0.5 + bar_width/2, df['Responders'].max() + 2),
-                arrowprops=dict(facecolor='black', arrowstyle='->'),
-                ha='center')
-    
-    # Set y-axis limit to match reference
-    plt.ylim(0, 30)
-    
-    # Add legend
-    plt.legend(loc='upper right')
-    
-    # Add statistical information
-    plt.figtext(0.15, 0.02,
-                f"Threshold used for defining responders: {threshold:.3f} μg/dL\n"
-                f"Chi-square statistic: {chi2:.2f}\n"
-                f"p-value: {p:.4f}\n"
-                "No statistically significant difference (p ≥ 0.05)",
-                fontsize=8)
-    
-    # Adjust layout
-    plt.tight_layout()
-    plt.subplots_adjust(bottom=0.2)
-    plt.show()
 
-def plot_positive_images_responses(data):
-    # Split data based on group (HC vs NC)
-    hc_data = data[data['status'] == 'HC'].copy()
-    nc_data = data[data['status'] == 'NC'].copy()
-
-    # Define responders and non-responders for both HC and NC
-    hc_data['saa_responders'] = np.where(hc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
-    hc_data['cortisol_responders'] = np.where(hc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
-
-    nc_data['saa_responders'] = np.where(nc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
-    nc_data['cortisol_responders'] = np.where(nc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
-
-    # Combine data for plotting
-    combined_data_saa = pd.concat([hc_data[['status', 'saa_responders', 'positive_image']],
-                                   nc_data[['status', 'saa_responders', 'positive_image']]])
-    combined_data_cortisol = pd.concat([hc_data[['status', 'cortisol_responders', 'positive_image']],
-                                        nc_data[['status', 'cortisol_responders', 'positive_image']]])
-
-    # Merge the two datasets for unified x-axis
-    combined_data_saa['response_type'] = 'SAA'
-    combined_data_saa.rename(columns={'saa_responders': 'responders'}, inplace=True)
-    combined_data_cortisol['response_type'] = 'Cortisol'
-    combined_data_cortisol.rename(columns={'cortisol_responders': 'responders'}, inplace=True)
-
-    merged_data = pd.concat([combined_data_saa, combined_data_cortisol])
-
-    # Create a combined bar plot
-    plt.figure(figsize=(12, 8))
-    sns.barplot(data=merged_data, x='responders', y='positive_image', hue='status', errorbar=None, palette="muted", dodge=True)
-    plt.title('Memory for Positive Stimuli Based on SAA and Cortisol Responses (Combined)')
-    plt.ylabel('Average Memory for Positive Stimuli')
-    plt.xlabel('Responders vs Nonresponders')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-
-def heatMap(group_means, val):
-    
-    # Extract relevant data
-    means = group_means.pivot(index=['saa_responders', 'cortisol_responders'], columns='status', values= val)
-
-    # Visualization of group means
-    plt.figure(figsize=(10, 6))
-    sns.heatmap(means, annot=True, fmt=".2f", cmap="coolwarm", cbar_kws={'label': 'Mean Memory Score'})
-    plt.title("Heatmap of Group Means")
-    plt.xlabel("Status")
-    plt.ylabel("SAA and Cortisol Responders")
-    plt.tight_layout()
-    plt.show()
-
-def vizualizations_two_way_anova(anova_table):
-    # Visualization of ANOVA F-Values and p-Values (filtering for 'status' effects only)
-    anova_viz = anova_table.reset_index().rename(columns={'index': 'Effect'})
-    anova_viz = anova_viz[anova_viz['Effect'].str.contains('status')]
-
-    plt.figure(figsize=(12, 6))
-    sns.barplot(data=anova_viz, x='Effect', y='F', palette='muted', legend=False, hue='Effect')
-    plt.title('ANOVA F-Values for Status(NC/HC) Effects')
-    plt.ylabel('F-Value')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-
-    plt.figure(figsize=(12, 6))
-    sns.barplot(data=anova_viz, x='Effect', y='PR(>F)', palette='muted', legend=False, hue='Effect')
-    plt.title('ANOVA p-Values for Status(NC/HC) Effects')
-    plt.ylabel('p-Value')
-    plt.xticks(rotation=45)
-    plt.axhline(0.05, color='red', linestyle='--', label='Significance Threshold (p=0.05)')
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-
-def plot_negative_images_responses(data):
-    # Split data based on group (HC vs NC)
-    hc_data = data[data['status'] == 'HC'].copy()
-    nc_data = data[data['status'] == 'NC'].copy()
-
-    # Define responders and non-responders for both HC and NC
-    hc_data['saa_responders'] = np.where(hc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
-    hc_data['cortisol_responders'] = np.where(hc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
-
-    nc_data['saa_responders'] = np.where(nc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
-    nc_data['cortisol_responders'] = np.where(nc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
-
-    # Combine data for plotting
-    combined_data_saa = pd.concat([hc_data[['status', 'saa_responders', 'negative_image']],
-                                   nc_data[['status', 'saa_responders', 'negative_image']]])
-    combined_data_cortisol = pd.concat([hc_data[['status', 'cortisol_responders', 'negative_image']],
-                                        nc_data[['status', 'cortisol_responders', 'negative_image']]])
-
-    # Merge the two datasets for unified x-axis
-    combined_data_saa['response_type'] = 'SAA'
-    combined_data_saa.rename(columns={'saa_responders': 'responders'}, inplace=True)
-    combined_data_cortisol['response_type'] = 'Cortisol'
-    combined_data_cortisol.rename(columns={'cortisol_responders': 'responders'}, inplace=True)
-
-    merged_data = pd.concat([combined_data_saa, combined_data_cortisol])
-
-    # Create a combined bar plot
-    plt.figure(figsize=(12, 8))
-    sns.barplot(data=merged_data, x='responders', y='negative_image', hue='status', errorbar=None, palette="pastel", dodge=True)
-    plt.title('Memory for Negative Stimuli Based on SAA and Cortisol Responses (Combined)')
-    plt.ylabel('Average Memory for Negative Stimuli')
-    plt.xlabel('Responders vs Nonresponders')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-
-def plot_affect_basleline_cortisol_sAA_linear_regressions(data):
     # Separate data by groups
     group_nc = data[data['status'] == 'NC'].copy()
     group_hc = data[data['status'] == 'HC'].copy()
@@ -286,8 +221,25 @@ def plot_affect_basleline_cortisol_sAA_linear_regressions(data):
     plt.grid(True)
     plt.show()
 
-def plot_cortisol_phase_pill_effects(anova_nc_baseline, anova_nc_change, anova_hc_baseline, anova_hc_change, nc_data, hc_data):
-     # Create plots
+def plot_cortisol_phase_pill_effects(anova_nc_baseline: f_oneway, anova_nc_change: f_oneway, 
+                                     anova_hc_baseline: f_oneway, anova_hc_change: f_oneway, 
+                                     nc_data: pd.DataFrame, hc_data: pd.DataFrame) -> None:
+    """
+    Creates a 2x2 grid of bar plots to visualize the effects of menstrual phase and pill type on cortisol levels 
+    (baseline and change) for Naturally Cycling (NC) and Hormonal Contraceptive (HC) groups.
+
+    Parameters:
+        anova_nc_baseline (f_oneway): ANOVA result for baseline cortisol levels in the NC group.
+        anova_nc_change (f_oneway): ANOVA result for cortisol change in the NC group.
+        anova_hc_baseline (f_oneway): ANOVA result for baseline cortisol levels in the HC group.
+        anova_hc_change (f_oneway): ANOVA result for cortisol change in the HC group.
+        nc_data (pd.DataFrame): DataFrame of the NC group 
+        hc_data (pd.DataFrame): DataFrame of the HC group
+
+    Returns:
+        None: The function generates and displays a grid of bar plots.
+    """
+
     plt.figure(figsize=(10, 8))  # Adjusted size to make each subplot smaller
 
     # NC baseline cortisol levels
@@ -333,4 +285,159 @@ def plot_cortisol_phase_pill_effects(anova_nc_baseline, anova_nc_change, anova_h
     plt.tight_layout()
     plt.show()
 
+def plot_negative_images_responses(data: pd.DataFrame) -> None:
+    """
+    Plots the average memory for negative stimuli based on SAA and Cortisol responses in two groups 
+    (Hormonal Contraceptive (HC) and Naturally Cycling (NC)).
 
+    Parameters:
+        data (pd.DataFrame): The DataFrame we perform the analysis on
+
+    Returns:
+        None: This function generates and displays a bar plot but does not return any value.
+    """
+    # Split data based on group (HC vs NC)
+    hc_data = data[data['status'] == 'HC'].copy()
+    nc_data = data[data['status'] == 'NC'].copy()
+
+    # Define responders and non-responders for both HC and NC
+    hc_data['saa_responders'] = np.where(hc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
+    hc_data['cortisol_responders'] = np.where(hc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+
+    nc_data['saa_responders'] = np.where(nc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
+    nc_data['cortisol_responders'] = np.where(nc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+
+    # Combine data for plotting
+    combined_data_saa = pd.concat([hc_data[['status', 'saa_responders', 'negative_image']],
+                                   nc_data[['status', 'saa_responders', 'negative_image']]])
+    combined_data_cortisol = pd.concat([hc_data[['status', 'cortisol_responders', 'negative_image']],
+                                        nc_data[['status', 'cortisol_responders', 'negative_image']]])
+
+    # Merge the two datasets for unified x-axis
+    combined_data_saa['response_type'] = 'SAA'
+    combined_data_saa.rename(columns={'saa_responders': 'responders'}, inplace=True)
+    combined_data_cortisol['response_type'] = 'Cortisol'
+    combined_data_cortisol.rename(columns={'cortisol_responders': 'responders'}, inplace=True)
+
+    merged_data = pd.concat([combined_data_saa, combined_data_cortisol])
+
+    # Create a combined bar plot
+    plt.figure(figsize=(12, 8))
+    sns.barplot(data=merged_data, x='responders', y='negative_image', hue='status', errorbar=None, palette="pastel", dodge=True)
+    plt.title('Memory for Negative Stimuli Based on SAA and Cortisol Responses (Combined)')
+    plt.ylabel('Average Memory for Negative Stimuli')
+    plt.xlabel('Responders vs Nonresponders')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+def heatMap(group_means: pd.DataFrame, val: str):
+    """
+    Creates a heatmap visualization of group means based on the specified value column.
+
+    Parameters:
+        group_means (pd.DataFrame): The DataFrame we perform the analysis on.
+        val (str): The name of the column in `group_means` to be used for the heatmap values.
+
+    Returns:
+        None: The function generates and displays a heatmap but does not return any value.
+    """
+
+    # Extract relevant data
+    means = group_means.pivot(index=['saa_responders', 'cortisol_responders'], columns='status', values= val)
+
+    # Visualization of group means
+    plt.figure(figsize=(10, 6))
+    sns.heatmap(means, annot=True, fmt=".2f", cmap="coolwarm", cbar_kws={'label': 'Mean Memory Score'})
+    plt.title("Heatmap of Group Means")
+    plt.xlabel("Status")
+    plt.ylabel("SAA and Cortisol Responders")
+    plt.tight_layout()
+    plt.show()
+
+
+def vizualizations_two_way_anova(anova_table: pd.DataFrame) -> None:
+    """
+    Creates visualizations for a two-way ANOVA table, displaying F-values and p-values for effects related to status.
+
+    Parameters:
+        anova_table (pd.DataFrame): A pandas DataFrame containing the ANOVA results.
+                                    Must include the following columns:
+                                    - 'Effect': The effect names.
+                                    - 'F': The F-values for each effect.
+                                    - 'PR(>F)': The p-values for each effect.
+
+    Returns:
+        None: The function generates and displays bar plots but does not return any value.
+    """
+
+    # Visualization of ANOVA F-Values and p-Values (filtering for 'status' effects only)
+    anova_viz = anova_table.reset_index().rename(columns={'index': 'Effect'})
+    anova_viz = anova_viz[anova_viz['Effect'].str.contains('status')]
+
+
+    # Plot F-Values for status effects
+    plt.figure(figsize=(12, 6))
+    sns.barplot(data=anova_viz, x='Effect', y='F', palette='muted', legend=False, hue='Effect')
+    plt.title('ANOVA F-Values for Status(NC/HC) Effects')
+    plt.ylabel('F-Value')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+    # Plot p-Values for status effects
+    plt.figure(figsize=(12, 6))
+    sns.barplot(data=anova_viz, x='Effect', y='PR(>F)', palette='muted', legend=False, hue='Effect')
+    plt.title('ANOVA p-Values for Status(NC/HC) Effects')
+    plt.ylabel('p-Value')
+    plt.xticks(rotation=45)
+    plt.axhline(0.05, color='red', linestyle='--', label='Significance Threshold (p=0.05)')
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+def plot_positive_images_responses(data: pd.DataFrame) -> None:
+    """
+    Plots the average memory for positive stimuli based on SAA and Cortisol responses in two groups 
+    (Hormonal Contraceptive (HC) and Naturally Cycling (NC)).
+
+    Args:
+        data (pd.DataFrame): The DataFrame we perform the analysis on.
+
+    Returns:
+        None: This function generates and displays a bar plot but does not return any value.
+    """
+    # Split data based on group (HC vs NC)
+    hc_data = data[data['status'] == 'HC'].copy()
+    nc_data = data[data['status'] == 'NC'].copy()
+
+    # Define responders and non-responders for both HC and NC
+    hc_data['saa_responders'] = np.where(hc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
+    hc_data['cortisol_responders'] = np.where(hc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+
+    nc_data['saa_responders'] = np.where(nc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
+    nc_data['cortisol_responders'] = np.where(nc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+
+    # Combine data for plotting
+    combined_data_saa = pd.concat([hc_data[['status', 'saa_responders', 'positive_image']],
+                                   nc_data[['status', 'saa_responders', 'positive_image']]])
+    combined_data_cortisol = pd.concat([hc_data[['status', 'cortisol_responders', 'positive_image']],
+                                        nc_data[['status', 'cortisol_responders', 'positive_image']]])
+
+    # Merge the two datasets for unified x-axis
+    combined_data_saa['response_type'] = 'SAA'
+    combined_data_saa.rename(columns={'saa_responders': 'responders'}, inplace=True)
+    combined_data_cortisol['response_type'] = 'Cortisol'
+    combined_data_cortisol.rename(columns={'cortisol_responders': 'responders'}, inplace=True)
+
+    merged_data = pd.concat([combined_data_saa, combined_data_cortisol])
+
+    # Create a combined bar plot
+    plt.figure(figsize=(12, 8))
+    sns.barplot(data=merged_data, x='responders', y='positive_image', hue='status', errorbar=None, palette="muted", dodge=True)
+    plt.title('Memory for Positive Stimuli Based on SAA and Cortisol Responses (Combined)')
+    plt.ylabel('Average Memory for Positive Stimuli')
+    plt.xlabel('Responders vs Nonresponders')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()

@@ -1,8 +1,31 @@
+"""
+Unit tests for project functions, including data initialization, statistical analysis and visualization.
+
+Modules:
+    - unittest: Framework for writing and running tests.
+    - pandas (pd): Data manipulation and analysis library.
+    - sys: Provides access to system-specific parameters and functions.
+
+Custom Modules:
+    - InitializeFile: Initializes project-related data files.
+    - chi_square: Performs chi-square analysis.
+    - analyze_saa_response: Analyzes sAA response data.
+    - Visualization functions: Provides plotting capabilities for various analyses.
+
+Notes:
+    - All tests validate function behavior, data integrity, and visualization output.
+    - The script expects specific data structures and column names.
+"""
+
 import unittest
 import pandas as pd
 import sys
+
+# Adding paths for importing custom modules
 sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src')
 sys.path.append(r"C:\Users\matan\OneDrive\שולחן העבודה\python\project\src\functions")
+
+# Importing custom modules
 from objects.initializeFile import InitializeFile
 from functions.calculate import chi_square, analyze_saa_response
 from functions.visualization import (
@@ -14,15 +37,26 @@ from functions.visualization import (
 )
 
 class TestProjectFunctionsAdvanced(unittest.TestCase):
+    """
+    Unit tests for advanced project functions, including data initialization,
+    statistical analysis, and visualization.
+    """
 
     @classmethod
     def setUpClass(cls):
-        # Initialize the file once for all tests
+        """
+        Set up class-level resources, including initializing the data file.
+        This method runs once before all tests in this class.
+        """
         cls.file = InitializeFile().file
 
     def test_initialize_file_columns_and_data(self):
         """
         Test that InitializeFile creates the required DataFrame with correct columns and data.
+        Verifies:
+        - DataFrame is not empty
+        - Required columns exist
+        - Specific columns have numeric data types
         """
         self.assertFalse(self.file.empty, "DataFrame is empty")
         required_columns = [
@@ -39,7 +73,10 @@ class TestProjectFunctionsAdvanced(unittest.TestCase):
 
     def test_chi_square_results(self):
         """
-        Test the chi_square function with mock data.
+        Test the chi_square function with mock data to ensure correct output values.
+        Verifies:
+        - Chi-square statistic is positive
+        - p-value is within the range [0, 1]
         """
         prepared_data = pd.DataFrame({
             'Group': ['NC', 'HC'],
@@ -56,6 +93,9 @@ class TestProjectFunctionsAdvanced(unittest.TestCase):
     def test_analyze_saa_response_accuracy(self):
         """
         Test analyze_saa_response for valid output structure and meaningful results.
+        Verifies:
+        - Output structure contains expected keys
+        - Numerical results are valid
         """
         results = analyze_saa_response(self.file)
 
@@ -93,7 +133,10 @@ class TestProjectFunctionsAdvanced(unittest.TestCase):
 
     def test_visualization_functions(self):
         """
-        Test that visualization functions run without errors and plot correctly.
+        Test that visualization functions run without errors and produce expected results.
+        Includes:
+        - plot_positive_images_responses
+        - plot_negative_images_responses
         """
         try:
             plot_positive_images_responses(self.file)
@@ -104,6 +147,8 @@ class TestProjectFunctionsAdvanced(unittest.TestCase):
     def test_missing_columns_error_handling(self):
         """
         Test that functions handle missing columns gracefully.
+        Verifies:
+        - analyze_saa_response raises KeyError when required columns are missing
         """
         modified_file = self.file.copy()
         modified_file.drop(columns=['sAA_level_baseline'], inplace=True)
@@ -134,7 +179,6 @@ class TestProjectFunctionsAdvanced(unittest.TestCase):
         except Exception as e:
             self.fail(f"analyze_saa_response failed with extreme values: {e}")
 
-
 class MockAnovaResult:
     """
     Mock class to simulate ANOVA result objects for testing.
@@ -142,36 +186,15 @@ class MockAnovaResult:
     def __init__(self, pvalue):
         self.pvalue = pvalue
 
-class TestProjectFunctionsAdvanced(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.file = InitializeFile().file
-
-    def test_initialize_file_columns_and_data(self):
-        self.assertFalse(self.file.empty, "DataFrame is empty")
-        required_columns = [
-            'age', 'BMI', 'sAA_level_baseline', 'change_image_sAA_level',
-            'cortisol_level_baseline', 'change_CPS_cortisol_level',
-            'positive_image', 'negative_image'
-        ]
-        for column in required_columns:
-            self.assertIn(column, self.file.columns, f"Missing column: {column}")
-
-    def test_chi_square_results(self):
-        prepared_data = pd.DataFrame({
-            'Group': ['NC', 'HC'],
-            'Responders': [20, 18],
-            'Non-Responders': [10, 12]
-        })
-        chi2, p, _ = chi_square(prepared_data)
-        self.assertGreater(chi2, 0)
-        self.assertGreaterEqual(p, 0)
-        self.assertLessEqual(p, 1)
-
 class TestPlotCortisolPhasePillEffects(unittest.TestCase):
+    """
+    Unit tests for the plot_cortisol_phase_pill_effects function.
+    """
 
     def test_valid_data(self):
+        """
+        Test plot_cortisol_phase_pill_effects with valid data to ensure no exceptions occur.
+        """
         nc_data = pd.DataFrame({
             'phase': ['follicular', 'luteal'],
             'cortisol_level_baseline': [0.2, 0.1],
@@ -186,6 +209,7 @@ class TestPlotCortisolPhasePillEffects(unittest.TestCase):
         anova_nc_change = MockAnovaResult(pvalue=0.01)
         anova_hc_baseline = MockAnovaResult(pvalue=0.03)
         anova_hc_change = MockAnovaResult(pvalue=0.02)
+
         try:
             plot_cortisol_phase_pill_effects(
                 anova_nc_baseline, anova_nc_change,
@@ -197,4 +221,3 @@ class TestPlotCortisolPhasePillEffects(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

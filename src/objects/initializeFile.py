@@ -3,7 +3,6 @@ import pandas as pd
 import sys
 sys.path.append(r'C:/Users/matan/OneDrive/שולחן העבודה/python/project/src/objects')
 sys.path.append(r'C:/Users/matan/OneDrive/שולחן העבודה/python/project/src/functions')
-from Woman import Woman
 from functions.general import (
     generate_numbers_with_stats,
     split_list

@@ -9,14 +9,13 @@ sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project
 sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src\functions')
 sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src\objects')
 
-    # Rest of the function logic...
 
-def analyze_saa_response(data) -> dict:
+def analyze_saa_response(data: pd.DataFrame ) -> dict: 
     """
     Analyze sAA response differences between HC and NC groups
     
     Parameters:
-    data (pd.DataFrame): Input data containing status and sAA measurements
+    data (pd.DataFrame): The DataFrame we perform the analysis on
     
     Returns:
     dict: Dictionary containing all statistical results and summary statistics
@@ -79,6 +78,14 @@ def analyze_saa_response(data) -> dict:
 def calculate_effect_size(group1: pd.Series, group2: pd.Series) -> float:
     """
     Calculate Cohen's d effect size
+
+    Parameters:
+    group1 (pd.DataFrame): HC women 
+    group2 (pd.DataFrame): NC women 
+
+    Returns:
+    float: return the Cohen's d effect
+
     """
     n1, n2 = len(group1), len(group2)
     var1, var2 = group1.var(), group2.var()
@@ -91,15 +98,39 @@ def calculate_effect_size(group1: pd.Series, group2: pd.Series) -> float:
     return d
 
 
-def chi_square(df):
+def chi_square(data: pd.DataFrame) -> tuple:
     """
     Performs chi-square test on the data.
+
+    Parameters:
+    data (pd.DataFrame): The DataFrame we perform the analysis on
+
+    Returns:
+    tuple:
+        - float: The chi-square test statistic (chi2).
+        - float: The p-value associated with the chi-square test.
+        - np.ndarray: The contingency table extracted from the DataFrame.
+
     """
-    contingency_table = df[["Responders", "Non-Responders"]].values
+    contingency_table = data[["Responders", "Non-Responders"]].values
     chi2, p, dof, expected = chi2_contingency(contingency_table)
     return chi2, p, contingency_table
 
-def calculate_two_way_anova_with_viz_positive(data):
+def calculate_two_way_anova_with_viz_positive(data: pd.DataFrame) -> tuple:
+
+    """
+    Calculates a Two-Way ANOVA with interaction effects for positive image ratings
+    based on categorical responder types and status, and visualizes group means.
+
+    Parameters:
+    data (pd.DataFrame): The DataFrame we perform the analysis on
+
+    Returns:
+    tuple:
+        - pd.DataFrame: Group means for positive image ratings by status, SAA responders, and cortisol responders.
+        - pd.DataFrame: ANOVA table containing F-statistics, p-values, and sums of squares.
+    """
+
     # Categorize into responders and non-responders
     data['saa_responders'] = np.where(data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
     data['cortisol_responders'] = np.where(data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
@@ -113,7 +144,22 @@ def calculate_two_way_anova_with_viz_positive(data):
 
     return group_means, anova_table
 
-def calculate_two_way_anova_with_viz_negative(data):
+
+def calculate_two_way_anova_with_viz_negative(data: pd.DataFrame) -> tuple:
+    
+    """
+    Calculates a Two-Way ANOVA with interaction effects for negative image ratings
+    based on categorical responder types and status, and visualizes group means.
+
+    Parameters:
+    data (pd.DataFrame): The DataFrame we perform the analysis on
+
+    Returns:
+    tuple:
+        - pd.DataFrame: Group means for negative image ratings by status, SAA responders, and cortisol responders.
+        - pd.DataFrame: ANOVA table containing F-statistics, p-values, and sums of squares.
+    """
+        
     # Categorize into responders and non-responders
     data['saa_responders'] = np.where(data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
     data['cortisol_responders'] = np.where(data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
@@ -128,7 +174,23 @@ def calculate_two_way_anova_with_viz_negative(data):
     return group_means, anova_table
 
 # Function to perform analysis and visualization
-def analyze_cortisol_data(data):
+def analyze_cortisol_data(data: pd.DataFrame) -> tuple:
+
+    """
+    Analyzes cortisol data by performing one-way ANOVA tests for different groups and phases.
+
+    Parameters:
+    data (pd.DataFrame): The DataFrame we perform the analysis on
+
+    Returns:
+    tuple:
+        - scipy.stats._stats_py.F_onewayResult: ANOVA results for NC group (cortisol baseline by phase).
+        - scipy.stats._stats_py.F_onewayResult: ANOVA results for NC group (cortisol change by phase).
+        - scipy.stats._stats_py.F_onewayResult: ANOVA results for HC group (cortisol baseline by pill type).
+        - scipy.stats._stats_py.F_onewayResult: ANOVA results for HC group (cortisol change by pill type).
+        - pd.DataFrame: Filtered data for the NC group.
+        - pd.DataFrame: Filtered data for the HC group.
+    """
     # Ensure the cortisol_change column is created
     if 'cortisol_change' not in data.columns:
         if 'change_CPS_cortisol_level' in data.columns:
@@ -161,4 +223,3 @@ def analyze_cortisol_data(data):
     anova_hc_change = f_oneway(monophasic_hc_change, triphasic_hc_change)
 
     return anova_nc_baseline, anova_nc_change, anova_hc_baseline, anova_hc_change, nc_data, hc_data
-
