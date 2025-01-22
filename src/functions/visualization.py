@@ -88,14 +88,21 @@ def plot_difference_sAA_responses(data: pd.DataFrame) -> None:
 
     Returns:
         None: The function generates a bar plot but does not return any value
+    
+    Raises:
+        KeyError: If required columns are missing from the data
     """
 
     # Extract groups from the DataFrame. 
-    groups = {
-         'NC': data['change_image_sAA_level'][:42],
-         'HC': data['change_image_sAA_level'][42:],
-     }
-
+    try:
+        groups = {
+            'NC': data['change_image_sAA_level'][:42],
+            'HC': data['change_image_sAA_level'][42:],
+        }
+    except KeyError as e:
+        # Handle missing or incorrect group data
+        print(f"Error accessing group data: {e}")
+        raise  # Re-raise the exception
 
     plt.figure(figsize=(8, 6))
     # Create a bar plot with labels and formatting, calculate the mean for each group as the Y axis.
@@ -159,18 +166,31 @@ def plot_affect_basleline_cortisol_sAA_linear_regressions(data: pd.DataFrame) ->
 
     Returns:
         None: The function generates and displays scatter plots with regression lines.
+    
+    Raises:
+        KeyError: If required columns are missing from the data
     """
 
     # Separate data by groups
-    group_nc = data[data['status'] == 'NC'].copy()
-    group_hc = data[data['status'] == 'HC'].copy()
+    try:
+        group_nc = data[data['status'] == 'NC'].copy()
+        group_hc = data[data['status'] == 'HC'].copy()
+    except KeyError as e:
+        # Handle missing contingency table columns
+        print(f"Error accessing contingency table columns: {e}")
+        raise  # Re-raise the exception
 
     # Plot SAA Level Baseline vs Change in Cortisol Level
     plt.figure(figsize=(10, 8))
 
     # Group NC
-    x_nc_saa = group_nc['sAA_level_baseline']
-    y_nc_cortisol = group_nc['change_CPS_cortisol_level']
+    try:
+        x_nc_saa = group_nc['sAA_level_baseline']
+        y_nc_cortisol = group_nc['change_CPS_cortisol_level']
+    except KeyError as e:
+        # Handle missing contingency table columns
+        print(f"Error accessing contingency table columns: {e}")
+        raise  # Re-raise the exception
     x_nc_saa_const = sm.add_constant(x_nc_saa)
     model_nc_saa = sm.OLS(y_nc_cortisol, x_nc_saa_const).fit()
     y_nc_pred_saa = model_nc_saa.predict(x_nc_saa_const)
@@ -178,8 +198,13 @@ def plot_affect_basleline_cortisol_sAA_linear_regressions(data: pd.DataFrame) ->
     plt.plot(x_nc_saa, y_nc_pred_saa, label='NC (Regression)', color='blue', linestyle='--')
 
     # Group HC
-    x_hc_saa = group_hc['sAA_level_baseline']
-    y_hc_cortisol = group_hc['change_CPS_cortisol_level']
+    try:
+        x_hc_saa = group_hc['sAA_level_baseline']
+        y_hc_cortisol = group_hc['change_CPS_cortisol_level']
+    except KeyError as e:
+        # Handle missing contingency table columns
+        print(f"Error accessing contingency table columns: {e}")
+        raise  # Re-raise the exception
     x_hc_saa_const = sm.add_constant(x_hc_saa)
     model_hc_saa = sm.OLS(y_hc_cortisol, x_hc_saa_const).fit()
     y_hc_pred_saa = model_hc_saa.predict(x_hc_saa_const)
@@ -197,8 +222,13 @@ def plot_affect_basleline_cortisol_sAA_linear_regressions(data: pd.DataFrame) ->
     plt.figure(figsize=(10, 8))
 
     # Group NC
-    x_nc_cortisol = group_nc['cortisol_level_baseline']
-    y_nc_cortisol_change = group_nc['change_CPS_cortisol_level']
+    try:
+        x_nc_cortisol = group_nc['cortisol_level_baseline']
+        y_nc_cortisol_change = group_nc['change_CPS_cortisol_level']
+    except KeyError as e:
+        # Handle missing contingency table columns
+        print(f"Error accessing contingency table columns: {e}")
+        raise  # Re-raise the exception
     x_nc_cortisol_const = sm.add_constant(x_nc_cortisol)
     model_nc_cortisol = sm.OLS(y_nc_cortisol_change, x_nc_cortisol_const).fit()
     y_nc_pred_cortisol = model_nc_cortisol.predict(x_nc_cortisol_const)
@@ -206,8 +236,13 @@ def plot_affect_basleline_cortisol_sAA_linear_regressions(data: pd.DataFrame) ->
     plt.plot(x_nc_cortisol, y_nc_pred_cortisol, label='NC (Regression)', color='blue', linestyle='--')
 
     # Group HC
-    x_hc_cortisol = group_hc['cortisol_level_baseline']
-    y_hc_cortisol_change = group_hc['change_CPS_cortisol_level']
+    try:
+        x_hc_cortisol = group_hc['cortisol_level_baseline']
+        y_hc_cortisol_change = group_hc['change_CPS_cortisol_level']
+    except KeyError as e:
+        # Handle missing contingency table columns
+        print(f"Error accessing contingency table columns: {e}")
+        raise  # Re-raise the exception
     x_hc_cortisol_const = sm.add_constant(x_hc_cortisol)
     model_hc_cortisol = sm.OLS(y_hc_cortisol_change, x_hc_cortisol_const).fit()
     y_hc_pred_cortisol = model_hc_cortisol.predict(x_hc_cortisol_const)
@@ -245,7 +280,7 @@ def plot_cortisol_phase_pill_effects(anova_nc_baseline: f_oneway, anova_nc_chang
     # NC baseline cortisol levels
     plt.subplot(2, 2, 1)
     sns.barplot(data=nc_data, x='phase', y='cortisol_level_baseline', palette='muted', errorbar=None, hue= 'phase', legend=False)
-    plt.title(f'NC Baseline Cortisol Levels (p = {anova_nc_baseline.pvalue:.3f})', fontsize=10)
+    plt.title('NC Baseline Cortisol Levels', fontsize=10)
     plt.xlabel('phase', fontsize=10, labelpad=-7)
     plt.ylabel('Baseline Cortisol Level', fontsize=8)
     plt.xticks(rotation=45, fontsize=8, ha='right')
@@ -255,7 +290,7 @@ def plot_cortisol_phase_pill_effects(anova_nc_baseline: f_oneway, anova_nc_chang
     # NC cortisol change
     plt.subplot(2, 2, 2)
     sns.barplot(data=nc_data, x='phase', y='cortisol_change', palette='muted', errorbar=None,  hue= 'phase', legend=False)
-    plt.title(f'NC Cortisol Change (p = {anova_nc_change.pvalue:.3f})', fontsize=10)
+    plt.title('NC Cortisol Change', fontsize=10)
     plt.xlabel('phase', fontsize=10, labelpad=-7)
     plt.ylabel('Cortisol Change', fontsize=8)
     plt.xticks(rotation=45, fontsize=8, ha='right')
@@ -265,7 +300,7 @@ def plot_cortisol_phase_pill_effects(anova_nc_baseline: f_oneway, anova_nc_chang
     # HC baseline cortisol levels
     plt.subplot(2, 2, 3)
     sns.barplot(data=hc_data, x='pill_type', y='cortisol_level_baseline', palette='pastel', errorbar=None, hue= 'pill_type', legend=False)
-    plt.title(f'HC Baseline Cortisol Levels (p = {anova_hc_baseline.pvalue:.3f})', fontsize=10)
+    plt.title('HC Baseline Cortisol Levels', fontsize=10)
     plt.ylabel('Baseline Cortisol Level', fontsize=8)
     plt.xlabel('Pill Type', fontsize=10, labelpad=-7)
     plt.xticks(rotation=45, fontsize=8, ha='right')
@@ -275,7 +310,7 @@ def plot_cortisol_phase_pill_effects(anova_nc_baseline: f_oneway, anova_nc_chang
     # HC cortisol change
     plt.subplot(2, 2, 4)
     sns.barplot(data=hc_data, x='pill_type', y='cortisol_change', palette='pastel', errorbar=None, hue= 'pill_type', legend=False)
-    plt.title(f'HC Cortisol Change (p = {anova_hc_change.pvalue:.3f})', fontsize=10)
+    plt.title('HC Cortisol Change', fontsize=10)
     plt.ylabel('Cortisol Change', fontsize=8)
     plt.xlabel('Pill Type', fontsize=10, labelpad=-7)
     plt.xticks(rotation=45, fontsize=8, ha='right')
@@ -295,18 +330,26 @@ def plot_negative_images_responses(data: pd.DataFrame) -> None:
 
     Returns:
         None: This function generates and displays a bar plot but does not return any value.
+    
+    Raises:
+        KeyError: If required columns are missing from the data
     """
     # Split data based on group (HC vs NC)
-    hc_data = data[data['status'] == 'HC'].copy()
-    nc_data = data[data['status'] == 'NC'].copy()
+    try:
+        hc_data = data[data['status'] == 'HC'].copy()
+        nc_data = data[data['status'] == 'NC'].copy()
 
-    # Define responders and non-responders for both HC and NC
-    hc_data['saa_responders'] = np.where(hc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
-    hc_data['cortisol_responders'] = np.where(hc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+        # Define responders and non-responders for both HC and NC
+        hc_data['saa_responders'] = np.where(hc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
+        hc_data['cortisol_responders'] = np.where(hc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
 
-    nc_data['saa_responders'] = np.where(nc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
-    nc_data['cortisol_responders'] = np.where(nc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
-
+        nc_data['saa_responders'] = np.where(nc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
+        nc_data['cortisol_responders'] = np.where(nc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+    except KeyError as e:
+        # Handle missing contingency table columns
+        print(f"Error accessing contingency table columns: {e}")
+        raise  # Re-raise the exception
+    
     # Combine data for plotting
     combined_data_saa = pd.concat([hc_data[['status', 'saa_responders', 'negative_image']],
                                    nc_data[['status', 'saa_responders', 'negative_image']]])
@@ -341,11 +384,18 @@ def heatMap(group_means: pd.DataFrame, val: str):
 
     Returns:
         None: The function generates and displays a heatmap but does not return any value.
+
+    Raises:
+        KeyError: If required columns are missing from the data
     """
 
     # Extract relevant data
-    means = group_means.pivot(index=['saa_responders', 'cortisol_responders'], columns='status', values= val)
-
+    try:
+        means = group_means.pivot(index=['saa_responders', 'cortisol_responders'], columns='status', values= val)
+    except KeyError as e:
+        # Handle missing contingency table columns
+        print(f"Error accessing contingency table columns: {e}")
+        raise  # Re-raise the exception
     # Visualization of group means
     plt.figure(figsize=(10, 6))
     sns.heatmap(means, annot=True, fmt=".2f", cmap="coolwarm", cbar_kws={'label': 'Mean Memory Score'})
@@ -406,18 +456,26 @@ def plot_positive_images_responses(data: pd.DataFrame) -> None:
 
     Returns:
         None: This function generates and displays a bar plot but does not return any value.
+
+    Raises:
+        KeyError: If required columns are missing from the data
     """
     # Split data based on group (HC vs NC)
-    hc_data = data[data['status'] == 'HC'].copy()
-    nc_data = data[data['status'] == 'NC'].copy()
+    try:
+        hc_data = data[data['status'] == 'HC'].copy()
+        nc_data = data[data['status'] == 'NC'].copy()
+    
+        # Define responders and non-responders for both HC and NC
+        hc_data['saa_responders'] = np.where(hc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
+        hc_data['cortisol_responders'] = np.where(hc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
 
-    # Define responders and non-responders for both HC and NC
-    hc_data['saa_responders'] = np.where(hc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
-    hc_data['cortisol_responders'] = np.where(hc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
-
-    nc_data['saa_responders'] = np.where(nc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
-    nc_data['cortisol_responders'] = np.where(nc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
-
+        nc_data['saa_responders'] = np.where(nc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
+        nc_data['cortisol_responders'] = np.where(nc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+    except KeyError as e:
+        # Handle missing contingency table columns
+        print(f"Error accessing contingency table columns: {e}")
+        raise  # Re-raise the exception
+    
     # Combine data for plotting
     combined_data_saa = pd.concat([hc_data[['status', 'saa_responders', 'positive_image']],
                                    nc_data[['status', 'saa_responders', 'positive_image']]])

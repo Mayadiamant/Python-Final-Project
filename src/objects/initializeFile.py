@@ -9,18 +9,46 @@ from functions.general import (
 )
 
 class InitializeFile():
+    """
+    This class initializes and processes a dataset by loading data from a CSV file,
+    generating synthetic data, and creating new columns in the dataset.
+
+    Attributes:
+        file (pd.DataFrame): The processed dataset.
+    """
+
     def __init__(self):
+        """
+        Initializes the class by loading a dataset and augmenting it with synthetic data.
+
+        Steps:
+            1. Load the dataset from a CSV file.
+            2. Generate synthetic data based on specified parameters.
+            3. Add new columns to the dataset.
+
+        Raises:
+            FileNotFoundError: If the CSV file is not found.
+            pd.errors.EmptyDataError: If the CSV file is empty.
+            pd.errors.ParserError: If the file format is invalid.
+            Exception: For other general errors while loading the file.
+            ValueError: If the generated synthetic data lengths do not match the dataset.
+            Exception: For general errors during column addition.
+        """
         try:
             file = pd.read_csv(r"C:\Users\matan\OneDrive\מסמכים\data set.csv")
             print("File uploaded successfully!")
         except FileNotFoundError:
             print("Error: File not found. Check the path.")
+            sys.exit(1)
         except pd.errors.EmptyDataError:
             print("Error: The file is empty.")
+            sys.exit(1)
         except pd.errors.ParserError:
             print("Error: There was a problem with the file format.")
+            sys.exit(1)
         except Exception as e:
             print(f"General error: {e}")
+            sys.exit(1)
         # Generate numbers 
         # Partially based on means and standard deviation based on data extraction from graphs
         np.random.seed(42)  # For reproducibility
@@ -64,6 +92,7 @@ class InitializeFile():
         nonresponders_negative_image_control_HC = generate_numbers_with_stats(6 , 3, 0.2, 2.8, 3.2)
         nonresponders_negative_image_control_NC = generate_numbers_with_stats(8 , 2.9, 0.1, 2.8, 3)
 
+        # Split lists
         part_one_responders_CPS_cortisol_level_NC_baseline , part_two_responders_CPS_cortisol_level_NC_baseline = split_list(responders_CPS_cortisol_level_NC_baseline, 12)
         part_one_nonresponders_CPS_cortisol_level_HC_baseline , part_two_nonresponders_CPS_cortisol_level_HC_baseline = split_list(nonresponders_CPS_cortisol_level_HC_baseline, 1)
         part_one_responders_CPS_cortisol_level_NC , part_two_responders_CPS_cortisol_level_NC = split_list(responders_CPS_cortisol_level_NC, 12)
@@ -73,12 +102,21 @@ class InitializeFile():
         part_one_control_nonresponders_cortisol_level_HC_baseline, part_two_control_nonresponders_cortisol_level_HC_baseline = split_list(control_nonresponders_cortisol_HC_baseline, 7)
         part_one_control_nonresponders_cortisol_level_NC_baseline, part_two_control_nonresponders_cortisol_level_NC_baseline = split_list(control_nonresponders_cortisol_NC_baseline, 10)
         
-        file['age'] = age
-        file['BMI'] = BMI_NC + BMI_HC 
-        file['sAA_level_baseline'] = responders_images_sAA_level_NC_baseline + nonresponders_images_sAA_level_NC_baseline + responders_images_sAA_level_HC_baseline + nonresponders_images_sAA_level_HC_baseline
-        file['change_image_sAA_level'] = responders_images_sAA_level_NC + nonresponders_images_sAA_level_NC + responders_images_sAA_level_HC + nonresponders_images_sAA_level_HC
-        file['cortisol_level_baseline'] = part_one_responders_CPS_cortisol_level_NC_baseline+ part_one_control_nonresponders_cortisol_level_NC_baseline+ part_two_responders_CPS_cortisol_level_NC_baseline + nonresponders_CPS_cortisol_level_NC_baseline + part_two_control_nonresponders_cortisol_level_NC_baseline + responders_CPS_corisol_level_HC_baseline + part_one_nonresponders_CPS_cortisol_level_HC_baseline + part_one_control_nonresponders_cortisol_level_HC_baseline + part_two_nonresponders_CPS_cortisol_level_HC_baseline + part_two_control_nonresponders_cortisol_level_HC_baseline
-        file['change_CPS_cortisol_level'] =  part_one_responders_CPS_cortisol_level_NC+ part_one_control_nonresponders_cortisol_level_NC+ part_two_responders_CPS_cortisol_level_NC + nonresponders_CPS_cortisol_level_NC + part_two_control_nonresponders_cortisol_level_NC + responders_CPS_corisol_level_HC + part_one_nonresponders_CPS_cortisol_level_HC + part_one_control_nonresponders_cortisol_level_HC + part_two_nonresponders_CPS_cortisol_level_HC + part_two_control_nonresponders_cortisol_level_HC
-        file['positive_image'] = responders_positive_image_CPS_NC + responders_positive_image_control_NC + nonresponders_positive_image_CPS_NC + nonresponders_positive_image_control_NC + responders_positive_image_CPS_HC + responders_positive_image_control_HC + nonresponders_positive_image_CPS_HC + nonresponders_positive_image_control_HC
-        file['negative_image'] = responders_negative_image_CPS_NC + responders_negative_image_control_NC + nonresponders_negative_image_CPS_NC + nonresponders_negative_image_control_NC + responders_negative_image_CPS_HC + responders_negative_image_control_HC + nonresponders_negative_image_CPS_HC + nonresponders_negative_image_control_HC
-        self.file = file
+        try:
+            # Augment the dataset
+            file['age'] = age
+            file['BMI'] = BMI_NC + BMI_HC 
+            file['sAA_level_baseline'] = responders_images_sAA_level_NC_baseline + nonresponders_images_sAA_level_NC_baseline + responders_images_sAA_level_HC_baseline + nonresponders_images_sAA_level_HC_baseline
+            file['change_image_sAA_level'] = responders_images_sAA_level_NC + nonresponders_images_sAA_level_NC + responders_images_sAA_level_HC + nonresponders_images_sAA_level_HC
+            file['cortisol_level_baseline'] = part_one_responders_CPS_cortisol_level_NC_baseline+ part_one_control_nonresponders_cortisol_level_NC_baseline+ part_two_responders_CPS_cortisol_level_NC_baseline + nonresponders_CPS_cortisol_level_NC_baseline + part_two_control_nonresponders_cortisol_level_NC_baseline + responders_CPS_corisol_level_HC_baseline + part_one_nonresponders_CPS_cortisol_level_HC_baseline + part_one_control_nonresponders_cortisol_level_HC_baseline + part_two_nonresponders_CPS_cortisol_level_HC_baseline + part_two_control_nonresponders_cortisol_level_HC_baseline
+            file['change_CPS_cortisol_level'] =  part_one_responders_CPS_cortisol_level_NC+ part_one_control_nonresponders_cortisol_level_NC+ part_two_responders_CPS_cortisol_level_NC + nonresponders_CPS_cortisol_level_NC + part_two_control_nonresponders_cortisol_level_NC + responders_CPS_corisol_level_HC + part_one_nonresponders_CPS_cortisol_level_HC + part_one_control_nonresponders_cortisol_level_HC + part_two_nonresponders_CPS_cortisol_level_HC + part_two_control_nonresponders_cortisol_level_HC
+            file['positive_image'] = responders_positive_image_CPS_NC + responders_positive_image_control_NC + nonresponders_positive_image_CPS_NC + nonresponders_positive_image_control_NC + responders_positive_image_CPS_HC + responders_positive_image_control_HC + nonresponders_positive_image_CPS_HC + nonresponders_positive_image_control_HC
+            file['negative_image'] = responders_negative_image_CPS_NC + responders_negative_image_control_NC + nonresponders_negative_image_CPS_NC + nonresponders_negative_image_control_NC + responders_negative_image_CPS_HC + responders_negative_image_control_HC + nonresponders_negative_image_CPS_HC + nonresponders_negative_image_control_HC
+            self.file = file
+            print("Columns added successfully!")
+        except Exception as e:
+            print(f"Error while adding columns: {e}")
+            sys.exit(1)
+       
+       
+        

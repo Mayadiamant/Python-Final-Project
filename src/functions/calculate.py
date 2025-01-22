@@ -5,6 +5,7 @@ from scipy.stats import f_oneway
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import sys
+
 sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src')
 sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src\functions')
 sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src\objects')
@@ -19,6 +20,9 @@ def analyze_saa_response(data: pd.DataFrame ) -> dict:
     
     Returns:
     dict: Dictionary containing all statistical results and summary statistics
+
+    Raises:
+        KeyError: If the columns are missing
      """    
     required_columns = [
         'change_image_sAA_level', 'cortisol_level_baseline',
@@ -27,7 +31,6 @@ def analyze_saa_response(data: pd.DataFrame ) -> dict:
     missing_columns = [col for col in required_columns if col not in data.columns]
     if missing_columns:
         raise KeyError(f"Missing required columns: {', '.join(missing_columns)}")
-
     # Rest of the function logic...
 
     # Create separate groups for HC and NC
@@ -77,63 +80,87 @@ def analyze_saa_response(data: pd.DataFrame ) -> dict:
 
 def calculate_effect_size(group1: pd.Series, group2: pd.Series) -> float:
     """
-    Calculate Cohen's d effect size
-
+    Calculate Cohen's d effect size.
+    
     Parameters:
-    group1 (pd.DataFrame): HC women 
-    group2 (pd.DataFrame): NC women 
-
+    group1 (pd.DataFrame): HC group data
+    group2 (pd.DataFrame): NC group data
+    
     Returns:
-    float: return the Cohen's d effect
-
+    float: Cohen's d effect size
+    
+    Raises:
+    ZeroDivisionError: If there is a division by zero during calculation
     """
     n1, n2 = len(group1), len(group2)
     var1, var2 = group1.var(), group2.var()
     
     # Pooled standard deviation
-    pooled_sd = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
-    
-    # Cohen's d
-    d = (group1.mean() - group2.mean()) / pooled_sd
+    try:
+        if (n1 + n2 - 2) == 0:
+            raise ZeroDivisionError("Deviation is zero. Cannot calculate pooled standard.")
+        pooled_sd = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+        if pooled_sd == 0:
+            raise ZeroDivisionError("Pooled standard deviation is zero. Cannot calculate Cohen's d.")
+        # Cohen's d calculation
+        d = (group1.mean() - group2.mean()) / pooled_sd
+    except ZeroDivisionError as e:
+        # Handle zero division error
+        print(f"Error: {e}")
+        return None
+
     return d
 
 
 def chi_square(data: pd.DataFrame) -> tuple:
     """
-    Performs chi-square test on the data.
-
+    Perform chi-square test on the data.
+    
     Parameters:
-    data (pd.DataFrame): The DataFrame we perform the analysis on
-
+    data (pd.DataFrame): The DataFrame for chi-square analysis
+    
     Returns:
     tuple:
-        - float: The chi-square test statistic (chi2).
-        - float: The p-value associated with the chi-square test.
-        - np.ndarray: The contingency table extracted from the DataFrame.
-
+        - float: chi-square test statistic (chi2)
+        - float: p-value for the chi-square test
+        - np.ndarray: Contingency table used for the chi-square test
+    
+    Raises:
+        KeyError: If the columns for 'Responders' and 'Non-Responders' are missing
     """
-    contingency_table = data[["Responders", "Non-Responders"]].values
-    chi2, p, dof, expected = chi2_contingency(contingency_table)
+    try:
+        contingency_table = data[["Responders", "Non-Responders"]].values
+        chi2, p, dof, expected = chi2_contingency(contingency_table)
+    except KeyError as e:
+        # Handle missing columns error
+        print(f"Error accessing contingency table columns: {e}")
+        raise  # Re-raise the exception
+
     return chi2, p, contingency_table
 
 def calculate_two_way_anova_with_viz_positive(data: pd.DataFrame) -> tuple:
-
     """
-    Calculates a Two-Way ANOVA with interaction effects for positive image ratings
-    based on categorical responder types and status, and visualizes group means.
-
+    Calculates a Two-Way ANOVA with interaction effects for positive image ratings.
+    
     Parameters:
-    data (pd.DataFrame): The DataFrame we perform the analysis on
-
+    data (pd.DataFrame): The DataFrame for analysis
+    
     Returns:
     tuple:
-        - pd.DataFrame: Group means for positive image ratings by status, SAA responders, and cortisol responders.
-        - pd.DataFrame: ANOVA table containing F-statistics, p-values, and sums of squares.
+        - pd.DataFrame: Group means for positive image ratings
+        - pd.DataFrame: ANOVA table containing F-statistics and p-values
+    
+    Raises:
+    KeyError: If required columns are missing or not categorized properly
     """
-
-    # Categorize into responders and non-responders
-    data['saa_responders'] = np.where(data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
-    data['cortisol_responders'] = np.where(data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+    try:
+        # Categorize into responders and non-responders
+        data['saa_responders'] = np.where(data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
+        data['cortisol_responders'] = np.where(data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+    except KeyError as e:
+        # Handle missing categorization columns
+        print(f"Error categorizing responder states: {e}")
+        raise  # Re-raise the exception
 
     # Calculate means for each group (by status and responder type)
     group_means = data.groupby(['status', 'saa_responders', 'cortisol_responders']).agg({'positive_image': 'mean'}).reset_index()
@@ -146,23 +173,28 @@ def calculate_two_way_anova_with_viz_positive(data: pd.DataFrame) -> tuple:
 
 
 def calculate_two_way_anova_with_viz_negative(data: pd.DataFrame) -> tuple:
-    
     """
-    Calculates a Two-Way ANOVA with interaction effects for negative image ratings
-    based on categorical responder types and status, and visualizes group means.
-
+    Calculates a Two-Way ANOVA with interaction effects for negative image ratings.
+    
     Parameters:
-    data (pd.DataFrame): The DataFrame we perform the analysis on
-
+    data (pd.DataFrame): The DataFrame for analysis
+    
     Returns:
     tuple:
-        - pd.DataFrame: Group means for negative image ratings by status, SAA responders, and cortisol responders.
-        - pd.DataFrame: ANOVA table containing F-statistics, p-values, and sums of squares.
+        - pd.DataFrame: Group means for negative image ratings
+        - pd.DataFrame: ANOVA table containing F-statistics and p-values
+    
+    Raises:
+    KeyError: If required columns are missing or not categorized properly
     """
-        
-    # Categorize into responders and non-responders
-    data['saa_responders'] = np.where(data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
-    data['cortisol_responders'] = np.where(data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+    try:
+        # Categorize into responders and non-responders
+        data['saa_responders'] = np.where(data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
+        data['cortisol_responders'] = np.where(data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+    except KeyError as e:
+        # Handle missing categorization columns
+        print(f"Error categorizing responder states: {e}")
+        raise  # Re-raise the exception
 
     # Calculate means for each group (by status and responder type)
     group_means = data.groupby(['status', 'saa_responders', 'cortisol_responders']).agg({'negative_image': 'mean'}).reset_index()
@@ -173,23 +205,24 @@ def calculate_two_way_anova_with_viz_negative(data: pd.DataFrame) -> tuple:
 
     return group_means, anova_table
 
-# Function to perform analysis and visualization
 def analyze_cortisol_data(data: pd.DataFrame) -> tuple:
-
     """
-    Analyzes cortisol data by performing one-way ANOVA tests for different groups and phases.
-
+    Analyzes cortisol data by performing one-way ANOVA tests.
+    
     Parameters:
-    data (pd.DataFrame): The DataFrame we perform the analysis on
-
+    data (pd.DataFrame): The DataFrame for cortisol analysis
+    
     Returns:
     tuple:
-        - scipy.stats._stats_py.F_onewayResult: ANOVA results for NC group (cortisol baseline by phase).
-        - scipy.stats._stats_py.F_onewayResult: ANOVA results for NC group (cortisol change by phase).
-        - scipy.stats._stats_py.F_onewayResult: ANOVA results for HC group (cortisol baseline by pill type).
-        - scipy.stats._stats_py.F_onewayResult: ANOVA results for HC group (cortisol change by pill type).
-        - pd.DataFrame: Filtered data for the NC group.
-        - pd.DataFrame: Filtered data for the HC group.
+        - scipy.stats._stats_py.F_onewayResult: ANOVA results for NC group (cortisol baseline by phase)
+        - scipy.stats._stats_py.F_onewayResult: ANOVA results for NC group (cortisol change by phase)
+        - scipy.stats._stats_py.F_onewayResult: ANOVA results for HC group (cortisol baseline by pill type)
+        - scipy.stats._stats_py.F_onewayResult: ANOVA results for HC group (cortisol change by pill type)
+        - pd.DataFrame: Filtered data for NC group
+        - pd.DataFrame: Filtered data for HC group
+    
+    Raises:
+    KeyError: If the required columns are missing
     """
     # Ensure the cortisol_change column is created
     if 'cortisol_change' not in data.columns:
@@ -198,28 +231,35 @@ def analyze_cortisol_data(data: pd.DataFrame) -> tuple:
         else:
             raise KeyError("Missing required column: 'change_CPS_cortisol_level'. Please ensure it exists in the dataset.")
 
-    # Filter NC and HC groups
-    nc_data = data[data['status'] == 'NC']
-    hc_data = data[data['status'] == 'HC']
+    
+    try:
+        # Filter NC and HC groups
+        nc_data = data[data['status'] == 'NC']
+        hc_data = data[data['status'] == 'HC']
 
-    # One-way ANOVA for NC group (cortisol baseline by phase)
-    follicular_nc = nc_data[nc_data['phase'] == 'follicular']['cortisol_level_baseline']
-    luteal_nc = nc_data[nc_data['phase'] == 'luteal']['cortisol_level_baseline']
-    anova_nc_baseline = f_oneway(follicular_nc, luteal_nc)
+        # One-way ANOVA for NC group (cortisol baseline by phase)
+        follicular_nc = nc_data[nc_data['phase'] == 'follicular']['cortisol_level_baseline']
+        luteal_nc = nc_data[nc_data['phase'] == 'luteal']['cortisol_level_baseline']
+        anova_nc_baseline = f_oneway(follicular_nc, luteal_nc)
 
-    # One-way ANOVA for NC group (cortisol change by phase)
-    follicular_nc_change = nc_data[nc_data['phase'] == 'follicular']['cortisol_change']
-    luteal_nc_change = nc_data[nc_data['phase'] == 'luteal']['cortisol_change']
-    anova_nc_change = f_oneway(follicular_nc_change, luteal_nc_change)
+        # One-way ANOVA for NC group (cortisol change by phase)
+        follicular_nc_change = nc_data[nc_data['phase'] == 'follicular']['cortisol_change']
+        luteal_nc_change = nc_data[nc_data['phase'] == 'luteal']['cortisol_change']
+        anova_nc_change = f_oneway(follicular_nc_change, luteal_nc_change)
 
-    # One-way ANOVA for HC group (cortisol baseline by pill type)
-    monophasic_hc = hc_data[hc_data['pill_type'] == 'monophasic']['cortisol_level_baseline']
-    triphasic_hc = hc_data[hc_data['pill_type'] == 'triphasic']['cortisol_level_baseline']
-    anova_hc_baseline = f_oneway(monophasic_hc, triphasic_hc)
+        # One-way ANOVA for HC group (cortisol baseline by pill type)
+        monophasic_hc = hc_data[hc_data['pill_type'] == 'monophasic']['cortisol_level_baseline']
+        triphasic_hc = hc_data[hc_data['pill_type'] == 'triphasic']['cortisol_level_baseline']
+        anova_hc_baseline = f_oneway(monophasic_hc, triphasic_hc)
 
-    # One-way ANOVA for HC group (cortisol change by pill type)
-    monophasic_hc_change = hc_data[hc_data['pill_type'] == 'monophasic']['cortisol_change']
-    triphasic_hc_change = hc_data[hc_data['pill_type'] == 'triphasic']['cortisol_change']
-    anova_hc_change = f_oneway(monophasic_hc_change, triphasic_hc_change)
+        # One-way ANOVA for HC group (cortisol change by pill type)
+        monophasic_hc_change = hc_data[hc_data['pill_type'] == 'monophasic']['cortisol_change']
+        triphasic_hc_change = hc_data[hc_data['pill_type'] == 'triphasic']['cortisol_change']
+        anova_hc_change = f_oneway(monophasic_hc_change, triphasic_hc_change)
 
-    return anova_nc_baseline, anova_nc_change, anova_hc_baseline, anova_hc_change, nc_data, hc_data
+        return anova_nc_baseline, anova_nc_change, anova_hc_baseline, anova_hc_change, nc_data, hc_data
+    except KeyError as e:
+        # Handle missing contingency table columns
+        print(f"Error accessing contingency table columns: {e}")
+        raise  # Re-raise the exception
+
