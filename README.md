@@ -11,6 +11,9 @@ The primary objectives are:
 2. Analyzing memory performance for positive and negative emotional stimuli in both groups.
 3. Conducting statistical analyses such as ANOVA and Chi-square tests to uncover significant patterns.
 
+Link to the project summary: 
+https://docs.google.com/document/d/1vFIpdaZ4GAX_lcSuaWWK1TUJAWx6nYx-bnnnrVglgs8/edit?usp=sharing
+
 The article this project is based on: 
 https://www.sciencedirect.com/science/article/pii/S030105111200227X?casa_token=6mF9uyf9pG0AAAAA:NttZLVmGWyY23ebrkeIKdyGmkCVWjnhCh-rrX68G-_GRPDRo_ByrC6Va1VWrBhtVsOIwUMflkA 
 
