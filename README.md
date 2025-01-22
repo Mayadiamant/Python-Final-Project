@@ -7,7 +7,7 @@ In this project we created the dataset based on the article stated below.
 
 The primary objectives are:
 
-1. Investigating differences in cortisol and sAA responses to stress and emotional stimuli between HC and NC groups.
+1. Investigating differences in Cortisol and sAA responses to stress and emotional stimuli between HC and NC groups.
 2. Analyzing memory performance for positive and negative emotional stimuli in both groups.
 3. Conducting statistical analyses such as ANOVA and Chi-square tests to uncover significant patterns.
 
@@ -50,7 +50,26 @@ Install the required libraries using:
 ```bash
 pip install pandas numpy matplotlib seaborn statsmodels scipy
 ```
+### Input Data
+Link to the dataset before adding the runtime simulated data:
+https://drive.google.com/file/d/1nVZVmDqx3acpP1rcA6QXBXQwCeW2M7yt/view?usp=sharing
 
+Link to the dataset after adding the runtime simulated data: 
+This is the full dataset: 
+https://drive.google.com/file/d/111uVm2qm3GnVWHJ4HI5ofEM6yOwBp8MN/view?usp=sharing
+
+In InitializeFile(): 
+Line 14:  file = pd.read_csv() 
+put: 
+```bash
+C:-PATH-TO-DATA-IN-YOUR-COMPUTER
+```
+In Main(): 
+Line 31:  data.to_csv()
+put: 
+```bash
+C:-PATH-TO-OUTPUT-DATA-IN-YOUR-COMPUTER
+```
 ### Folder Structure
 Ensure the following directory structure:
 ```
@@ -67,13 +86,6 @@ project/
     |-- test.py
 ```
 
-### Input Data
-Link to the dataset before adding the runtime simulated data:
-https://drive.google.com/file/d/1nVZVmDqx3acpP1rcA6QXBXQwCeW2M7yt/view?usp=sharing
-
-Link to the dataset after adding the runtime simulated data: 
-This is the full dataset: 
-https://drive.google.com/file/d/111uVm2qm3GnVWHJ4HI5ofEM6yOwBp8MN/view?usp=sharing
 
 ## How to Run
 
