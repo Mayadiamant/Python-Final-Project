@@ -7,7 +7,7 @@ In this project we created the dataset based on the article stated below.
 
 The primary objectives are:
 
-1. Investigating differences in cortisol and sAA responses to stress and emotional stimuli between HC and NC groups.
+1. Investigating differences in Cortisol and sAA responses to stress and emotional stimuli between HC and NC groups.
 2. Analyzing memory performance for positive and negative emotional stimuli in both groups.
 3. Conducting statistical analyses such as ANOVA and Chi-square tests to uncover significant patterns.
 
