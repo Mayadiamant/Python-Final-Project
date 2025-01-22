@@ -50,7 +50,26 @@ Install the required libraries using:
 ```bash
 pip install pandas numpy matplotlib seaborn statsmodels scipy
 ```
+### Input Data
+Link to the dataset before adding the runtime simulated data:
+https://drive.google.com/file/d/1nVZVmDqx3acpP1rcA6QXBXQwCeW2M7yt/view?usp=sharing
 
+Link to the dataset after adding the runtime simulated data: 
+This is the full dataset: 
+https://drive.google.com/file/d/111uVm2qm3GnVWHJ4HI5ofEM6yOwBp8MN/view?usp=sharing
+
+In InitializeFile(): 
+Line 14:  file = pd.read_csv() 
+put: 
+```bash
+C:-PATH-TO-DATA-IN-YOUR-COMPUTER
+```
+In Main(): 
+Line 31:  data.to_csv()
+put: 
+```bash
+C:-PATH-TO-OUTPUT-DATA-IN-YOUR-COMPUTER
+```
 ### Folder Structure
 Ensure the following directory structure:
 ```
@@ -67,13 +86,6 @@ project/
     |-- test.py
 ```
 
-### Input Data
-Link to the dataset before adding the runtime simulated data:
-https://drive.google.com/file/d/1nVZVmDqx3acpP1rcA6QXBXQwCeW2M7yt/view?usp=sharing
-
-Link to the dataset after adding the runtime simulated data: 
-This is the full dataset: 
-https://drive.google.com/file/d/111uVm2qm3GnVWHJ4HI5ofEM6yOwBp8MN/view?usp=sharing
 
 ## How to Run
 
