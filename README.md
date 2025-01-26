@@ -78,6 +78,7 @@ Ensure the following directory structure:
 ```
 project/
 |-- src/
+    |-- main.py
     |-- objects/
         |-- initializeFile.py
     |-- functions/
@@ -85,8 +86,8 @@ project/
         |-- calculate.py
         |-- general.py
 |-- tests/
-    |-- test1_prints.py
-    |-- test.py
+    |-- articleTest.py
+    |-- tests.py
 ```
 
 
