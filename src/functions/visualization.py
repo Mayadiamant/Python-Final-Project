@@ -345,16 +345,16 @@ def plot_negative_images_responses(data: pd.DataFrame) -> None:
 
         nc_data['saa_responders'] = np.where(nc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
         nc_data['cortisol_responders'] = np.where(nc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+    
+        # Combine data for plotting
+        combined_data_saa = pd.concat([hc_data[['status', 'saa_responders', 'negative_image']],
+                                    nc_data[['status', 'saa_responders', 'negative_image']]])
+        combined_data_cortisol = pd.concat([hc_data[['status', 'cortisol_responders', 'negative_image']],
+                                            nc_data[['status', 'cortisol_responders', 'negative_image']]])
     except KeyError as e:
         # Handle missing contingency table columns
         print(f"Error accessing contingency table columns: {e}")
         raise  # Re-raise the exception
-    
-    # Combine data for plotting
-    combined_data_saa = pd.concat([hc_data[['status', 'saa_responders', 'negative_image']],
-                                   nc_data[['status', 'saa_responders', 'negative_image']]])
-    combined_data_cortisol = pd.concat([hc_data[['status', 'cortisol_responders', 'negative_image']],
-                                        nc_data[['status', 'cortisol_responders', 'negative_image']]])
 
     # Merge the two datasets for unified x-axis
     combined_data_saa['response_type'] = 'SAA'
@@ -419,12 +419,18 @@ def vizualizations_two_way_anova(anova_table: pd.DataFrame) -> None:
 
     Returns:
         None: The function generates and displays bar plots but does not return any value.
+    
+    Raises:
+        KeyError: If required columns are missing from the data
     """
-
+    try:
     # Visualization of ANOVA F-Values and p-Values (filtering for 'status' effects only)
-    anova_viz = anova_table.reset_index().rename(columns={'index': 'Effect'})
-    anova_viz = anova_viz[anova_viz['Effect'].str.contains('status')]
-
+        anova_viz = anova_table.reset_index().rename(columns={'index': 'Effect'})
+        anova_viz = anova_viz[anova_viz['Effect'].str.contains('status')]
+    except KeyError as e:
+        # Handle missing contingency table columns
+        print(f"Error accessing contingency table columns: {e}")
+        raise  # Re-raise the exception
 
     # Plot F-Values for status effects
     plt.figure(figsize=(12, 6))
@@ -471,17 +477,18 @@ def plot_positive_images_responses(data: pd.DataFrame) -> None:
 
         nc_data['saa_responders'] = np.where(nc_data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
         nc_data['cortisol_responders'] = np.where(nc_data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+
+        # Combine data for plotting
+        combined_data_saa = pd.concat([hc_data[['status', 'saa_responders', 'positive_image']],
+                                    nc_data[['status', 'saa_responders', 'positive_image']]])
+        combined_data_cortisol = pd.concat([hc_data[['status', 'cortisol_responders', 'positive_image']],
+                                        nc_data[['status', 'cortisol_responders', 'positive_image']]])
+
     except KeyError as e:
         # Handle missing contingency table columns
         print(f"Error accessing contingency table columns: {e}")
         raise  # Re-raise the exception
     
-    # Combine data for plotting
-    combined_data_saa = pd.concat([hc_data[['status', 'saa_responders', 'positive_image']],
-                                   nc_data[['status', 'saa_responders', 'positive_image']]])
-    combined_data_cortisol = pd.concat([hc_data[['status', 'cortisol_responders', 'positive_image']],
-                                        nc_data[['status', 'cortisol_responders', 'positive_image']]])
-
     # Merge the two datasets for unified x-axis
     combined_data_saa['response_type'] = 'SAA'
     combined_data_saa.rename(columns={'saa_responders': 'responders'}, inplace=True)

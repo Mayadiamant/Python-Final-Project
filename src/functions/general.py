@@ -75,11 +75,9 @@ def split_list(lst: list, size: int) -> tuple:
         list2 = lst[size:]
         return list1, list2
     
-    except TypeError as e:
-        print(f"TypeError: {e}")
+    except TypeError:
         sys.exit(1)
-    except ValueError as e:
-        print(f"ValueError: {e}")
+    except ValueError:
         sys.exit(1)
     except Exception as e:
         print(f"Unexpected error: {e}")
@@ -146,14 +144,11 @@ def prepare_data_from_csv(data: pd.DataFrame) -> pd.DataFrame:
         result = result.sort_values('Group', ascending=True).reset_index(drop=True)
         return result
     
-    except TypeError as e:
-        print(f"TypeError: {e}")
+    except TypeError:
         sys.exit(1)
-    except KeyError as e:
-        print(f"KeyError: {e}")
+    except KeyError:
         sys.exit(1)
-    except ValueError as e:
-        print(f"ValueError: {e}")
+    except ValueError:
         sys.exit(1)
     except Exception as e:
         print(f"Unexpected error: {e}")

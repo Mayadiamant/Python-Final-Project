@@ -96,19 +96,15 @@ def calculate_effect_size(group1: pd.Series, group2: pd.Series) -> float:
     var1, var2 = group1.var(), group2.var()
     
     # Pooled standard deviation
-    try:
-        if (n1 + n2 - 2) == 0:
-            raise ZeroDivisionError("Deviation is zero. Cannot calculate pooled standard.")
-        pooled_sd = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
-        if pooled_sd == 0:
-            raise ZeroDivisionError("Pooled standard deviation is zero. Cannot calculate Cohen's d.")
-        # Cohen's d calculation
-        d = (group1.mean() - group2.mean()) / pooled_sd
-    except ZeroDivisionError as e:
-        # Handle zero division error
-        print(f"Error: {e}")
-        return None
-
+    
+    if (n1 + n2 - 2) == 0:
+        raise ZeroDivisionError("Deviation is zero. Cannot calculate pooled standard.")
+    pooled_sd = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+    if pooled_sd == 0:
+        raise ZeroDivisionError("Pooled standard deviation is zero. Cannot calculate Cohen's d.")
+    # Cohen's d calculation
+    d = (group1.mean() - group2.mean()) / pooled_sd
+    
     return d
 
 
@@ -130,7 +126,7 @@ def chi_square(data: pd.DataFrame) -> tuple:
     """
     try:
         contingency_table = data[["Responders", "Non-Responders"]].values
-        chi2, p, dof, expected = chi2_contingency(contingency_table)
+        chi2, p, _, _ = chi2_contingency(contingency_table)
     except KeyError as e:
         # Handle missing columns error
         print(f"Error accessing contingency table columns: {e}")
@@ -157,13 +153,12 @@ def calculate_two_way_anova_with_viz_positive(data: pd.DataFrame) -> tuple:
         # Categorize into responders and non-responders
         data['saa_responders'] = np.where(data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
         data['cortisol_responders'] = np.where(data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+        # Calculate means for each group (by status and responder type)
+        group_means = data.groupby(['status', 'saa_responders', 'cortisol_responders']).agg({'positive_image': 'mean'}).reset_index()
     except KeyError as e:
         # Handle missing categorization columns
         print(f"Error categorizing responder states: {e}")
         raise  # Re-raise the exception
-
-    # Calculate means for each group (by status and responder type)
-    group_means = data.groupby(['status', 'saa_responders', 'cortisol_responders']).agg({'positive_image': 'mean'}).reset_index()
 
     # Perform the Two-Way ANOVA
     model = ols('positive_image ~ C(status) * C(saa_responders) * C(cortisol_responders)', data=data).fit()
@@ -191,13 +186,13 @@ def calculate_two_way_anova_with_viz_negative(data: pd.DataFrame) -> tuple:
         # Categorize into responders and non-responders
         data['saa_responders'] = np.where(data['responsive_state_SAA'] == 'responders', 'SAA Responders', 'SAA Nonresponders')
         data['cortisol_responders'] = np.where(data['responsive_state_cortisol'] == 'responders', 'Cortisol Responders', 'Cortisol Nonresponders')
+        # Calculate means for each group (by status and responder type)
+        group_means = data.groupby(['status', 'saa_responders', 'cortisol_responders']).agg({'negative_image': 'mean'}).reset_index()
+
     except KeyError as e:
         # Handle missing categorization columns
         print(f"Error categorizing responder states: {e}")
         raise  # Re-raise the exception
-
-    # Calculate means for each group (by status and responder type)
-    group_means = data.groupby(['status', 'saa_responders', 'cortisol_responders']).agg({'negative_image': 'mean'}).reset_index()
 
     # Perform the Two-Way ANOVA
     model = ols('negative_image ~ C(status) * C(saa_responders) * C(cortisol_responders)', data=data).fit()
@@ -207,7 +202,7 @@ def calculate_two_way_anova_with_viz_negative(data: pd.DataFrame) -> tuple:
 
 def analyze_cortisol_data(data: pd.DataFrame) -> tuple:
     """
-    Analyzes cortisol data by performing one-way ANOVA tests.
+    Analyzes cortisol data by performing MANOVA tests.
     
     Parameters:
     data (pd.DataFrame): The DataFrame for cortisol analysis

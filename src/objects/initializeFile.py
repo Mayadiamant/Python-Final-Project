@@ -46,12 +46,15 @@ class InitializeFile():
         except pd.errors.ParserError:
             print("Error: There was a problem with the file format.")
             sys.exit(1)
+        except PermissionError:
+            print("Error: Permission to read file denied")
+            sys.exit(1)
         except Exception as e:
             print(f"General error: {e}")
             sys.exit(1)
         # Generate numbers 
         # Partially based on means and standard deviation based on data extraction from graphs
-        np.random.seed(42)  # For reproducibility
+        np.random.seed(42)  # In order to get the same data every run
         age = generate_numbers_with_stats(78, 20.37, 2.37, 18, 35)
         BMI_HC = generate_numbers_with_stats(36, 22.15, 3.98, 13, 33)
         BMI_NC = generate_numbers_with_stats(42, 21.78, 2.71, 13, 33)
@@ -114,6 +117,9 @@ class InitializeFile():
             file['negative_image'] = responders_negative_image_CPS_NC + responders_negative_image_control_NC + nonresponders_negative_image_CPS_NC + nonresponders_negative_image_control_NC + responders_negative_image_CPS_HC + responders_negative_image_control_HC + nonresponders_negative_image_CPS_HC + nonresponders_negative_image_control_HC
             self.file = file
             print("Columns added successfully!")
+        except PermissionError:
+            print("Error: Permission to write into the file denied")
+            sys.exit(1) 
         except Exception as e:
             print(f"Error while adding columns: {e}")
             sys.exit(1)
