@@ -9,5 +9,5 @@ archive
 dist
 .coverage
 main.log
-**/*.egg-info
-**/__pycache__
+*.egg-info
+__pycache__
