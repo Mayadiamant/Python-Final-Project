@@ -77,17 +77,21 @@ C:-PATH-TO-OUTPUT-DATA-IN-YOUR-COMPUTER
 Ensure the following directory structure:
 ```
 project/
+|-- main.py
 |-- src/
-    |-- main.py
     |-- objects/
-        |-- initializeFile.py
+        |-- initialize_file.py
+        |-- __init__.py
     |-- functions/
         |-- visualization.py
         |-- calculate.py
         |-- general.py
+        |-- __init__.py
+    |-- __init__.py
 |-- tests/
-    |-- articleTest.py
+    |-- article_test.py
     |-- tests.py
+    |-- __init__.py
 ```
 
 
