@@ -1,10 +1,16 @@
+"""This module provides utilities for data processing and statistical analysis.
+
+Includes functions for:
+- Handling data using pandas
+- Generating synthetic data using numpy
+- Performing statistical computations
+"""
 import numpy as np
 import pandas as pd
-import sys
+
 
 def generate_numbers_with_stats(n: int, target_mean: float, target_std: float, min_val: float, max_val: float) -> list:
-    """
-    Generate a list of numbers with specified statistics.
+    """Generate a list of numbers with specified statistics.
 
     Args:
         n (int): Number of values to generate.
@@ -20,12 +26,15 @@ def generate_numbers_with_stats(n: int, target_mean: float, target_std: float, m
         ValueError: If 'n' is less than or equal to 0, 'min_val' is greater than or equal to 'max_val', or 'target_std' is 0.
     """
     if n <= 0:
-        raise ValueError("Error: 'n' must be a positive integer.")
+        msg = "Error: 'n' must be a positive integer."
+        raise ValueError(msg)
     if min_val >= max_val:
-        raise ValueError("Error: 'min_val' must be less than 'max_val'.")
+        msg = "Error: 'min_val' must be less than 'max_val'."
+        raise ValueError(msg)
     if target_std == 0:
-        raise ValueError("Error: 'target_std' cannot be zero.")
-        
+        msg = "Error: 'target_std' cannot be zero."
+        raise ValueError(msg)
+
     # Start with normal distribution
     numbers = np.random.normal(target_mean, target_std, n-2)
 
@@ -50,8 +59,7 @@ def generate_numbers_with_stats(n: int, target_mean: float, target_std: float, m
     return sorted(numbers)
 
 def split_list(lst: list, size: int) -> tuple:
-    """
-    Split a list into two parts based on a specified size.
+    """Split a list into two parts based on a specified size.
 
     Args:
         lst (list): The list to split.
@@ -59,38 +67,28 @@ def split_list(lst: list, size: int) -> tuple:
 
     Returns:
         tuple: Two lists, the first containing 'size' elements, the second containing the rest.
-    
-    Raises:
-        TypeError: If 'lst' is not a list.
-        ValueError: If 'size' is less than 0 or greater than the length of the list.
-        Exception: If an unexpected error occurs during the list splitting process.
-    """
-    try:
-        if not isinstance(lst, list):
-            raise TypeError("Error: 'lst' must be a list.")
-        if size < 0 or size > len(lst):
-            raise ValueError("Error: 'size' must be between 0 and the length of the list.")
-        
-        list1 = lst[:size]
-        list2 = lst[size:]
-        return list1, list2
-    
-    except TypeError:
-        sys.exit(1)
-    except ValueError:
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        sys.exit(1)
 
-    
+    Raises:
+        TypeError: If 'lst' is not a list or 'size' is not an integer.
+        ValueError: If 'size' is less than 0 or greater than the length of the list.
+    """
+    if not isinstance(lst, list):
+        msg = "Error: 'lst' must be a list."
+        raise TypeError(msg)
+    if not isinstance(size, int):
+        msg = "Error: 'size' must be an integer."
+        raise TypeError(msg)
+    if size < 0 or size > len(lst):
+        msg = "Error: 'size' must be between 0 and the length of the list."
+        raise ValueError(msg)
+
+    return lst[:size], lst[size:]
 
 def prepare_data_from_csv(data: pd.DataFrame) -> pd.DataFrame:
-    """
-    Create a new DataFrame summarizing Responders and Non-Responders for each group.
+    """Create a new DataFrame summarizing Responders and Non-Responders for each group.
 
     Args:
-        csv_data (pd.DataFrame): The input DataFrame containing the original data.
+        data (pd.DataFrame): The input DataFrame containing the original data.
 
     Returns:
         pd.DataFrame: A DataFrame summarizing the counts of Responders and Non-Responders for each group.
@@ -99,57 +97,37 @@ def prepare_data_from_csv(data: pd.DataFrame) -> pd.DataFrame:
         TypeError: If 'data' is not a pandas DataFrame.
         KeyError: If 'status' column is missing in the input data.
         ValueError: If 'status' column is empty.
-        Exception: If an unexpected error occurs during data processing.
     """
-    try:
-        if not isinstance(data, pd.DataFrame):
-            raise TypeError("Error: 'data' must be a pandas DataFrame.")
-        if 'status' not in data.columns:
-            raise KeyError("Error: 'status' column is missing in the input data.")
-        if data['status'].empty:
-            raise ValueError("Error: 'status' column is empty.")
-        
-        # Create a copy of the data to avoid modifying the original
-        working_data = data.copy()
+    if not isinstance(data, pd.DataFrame):
+        msg = "Error: 'data' must be a pandas DataFrame."
+        raise TypeError(msg)
+    if "status" not in data.columns:
+        msg = "Error: 'status' column is missing in the input data."
+        raise KeyError(msg)
+    if data["status"].empty:
+        msg = "Error: 'status' column is empty."
+        raise ValueError(msg)
 
-        # Create empty DataFrame for results
-        result = pd.DataFrame()
+    # Create a copy of the data to avoid modifying the original
+    working_data = data.copy()
 
-        # Process each group (HC, NC)
-        for status in working_data['status'].unique():
-            group_data = working_data[working_data['status'] == status]
+    # Process each group (HC, NC) and compute responder counts
+    results = []
+    for status in working_data["status"].unique():
+        group_data = working_data[working_data["status"] == status]
 
-            # Count responders (only CPS condition)
-            responders = len(group_data[
-                (group_data['stress_test_condition'] == 'cps') & 
-                (group_data['responsive_state_cortisol'] == 'responders')
-            ])
+        responders = group_data[
+            (group_data["stress_test_condition"] == "cps") &
+            (group_data["responsive_state_cortisol"] == "responders")
+        ].shape[0]
 
-            # Count non-responders (including both CPS and control conditions)
-            non_responders = len(group_data[
-                ((group_data['stress_test_condition'] == 'cps') & 
-                (group_data['responsive_state_cortisol'] == 'non-responders')) |
-                (group_data['responsive_state_cortisol'] == 'control-non-responders')
-            ])
+        non_responders = group_data[
+            ((group_data["stress_test_condition"] == "cps") &
+            (group_data["responsive_state_cortisol"] == "non-responders")) |
+            (group_data["responsive_state_cortisol"] == "control-non-responders")
+        ].shape[0]
 
-            # Add new row to result DataFrame
-            new_row = pd.DataFrame({
-                'Group': [status],
-                'Responders': [responders],
-                'Non-Responders': [non_responders]
-            })
-            result = pd.concat([result, new_row], ignore_index=True)
+        results.append({"Group": status, "Responders": responders, "Non-Responders": non_responders})
 
-        # Sort to ensure HC comes before NC
-        result = result.sort_values('Group', ascending=True).reset_index(drop=True)
-        return result
-    
-    except TypeError:
-        sys.exit(1)
-    except KeyError:
-        sys.exit(1)
-    except ValueError:
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        sys.exit(1)
+    # Convert results to DataFrame and sort
+    return pd.DataFrame(results).sort_values("Group", ascending=True).reset_index(drop=True)

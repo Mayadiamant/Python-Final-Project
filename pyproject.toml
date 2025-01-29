@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "setuptools_scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "brainlytics"
+name = "finalproject"
 requires-python = ">=3.12"
 version = "1.0"
 dependencies = [
@@ -13,13 +13,17 @@ dependencies = [
     "torch==2.5.1",
     "matplotlib==3.9.2",
     "scipy==1.14.0",
+    "statsmodels==0.14.4",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "brainlytics[lint]",
-    "brainlytics[test]",
-    "brainlytics[build]",
+    "finalproject[lint]",
+    "finalproject[test]",
+    "finalproject[build]",
+]
+lint = [
+    "ruff",
 ]
 test = [
     "tox",
@@ -30,6 +34,13 @@ test = [
 ]
 build = [
     "build>=1.2.2",
+]
+[tool.ruff]
+line-length = 600
+max-statment = 100
+src =["src"]
+extend-exclude = [
+    "conf.py",
 ]
 target-version = "py312"
 lint.select = ["ALL"]

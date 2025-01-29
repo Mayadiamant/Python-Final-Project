@@ -1,5 +1,4 @@
-"""
-Unit tests for project functions, including data initialization, statistical analysis and visualization.
+"""Unit tests for project functions, including data initialization, statistical analysis and visualization.
 
 Modules:
     - unittest: Framework for writing and running tests.
@@ -17,82 +16,87 @@ Notes:
     - The script expects specific data structures and column names.
 """
 
-import unittest
-import pandas as pd
 import sys
+import unittest
+
+import pandas as pd
 
 # Adding paths for importing custom modules
-sys.path.append(r'C:\Users\matan\OneDrive\שולחן העבודה\python\project\src')
+sys.path.append(r"C:\Users\matan\OneDrive\שולחן העבודה\python\project")
+sys.path.append(r"C:\Users\matan\OneDrive\שולחן העבודה\python\project\src")
 sys.path.append(r"C:\Users\matan\OneDrive\שולחן העבודה\python\project\src\functions")
 
 # Importing custom modules
-from objects.initializeFile import InitializeFile
-from functions.calculate import chi_square, analyze_saa_response
-from functions.visualization import (
-    plot_difference_sAA_responses,
-    statistics_of_sAA_responses,
-    plot_positive_images_responses,
-    plot_negative_images_responses,
+import pytest
+
+from src.functions.calculate import analyze_saa_response, chi_square
+from src.functions.visualization import (
     plot_cortisol_phase_pill_effects,
+    plot_difference_saa_responses,
+    plot_negative_images_responses,
+    plot_positive_images_responses,
+    statistics_of_saa_responses,
 )
+from src.objects.initialize_file import InitializeFile
+
 
 class TestProjectFunctionsAdvanced(unittest.TestCase):
-    """
-    Unit tests for advanced project functions, including data initialization,
+    """Unit tests for advanced project functions, including data initialization,
+
     statistical analysis, and visualization.
     """
 
     @classmethod
-    def setUpClass(cls):
-        """
-        Set up class-level resources, including initializing the data file.
+    def setUpClass(cls) -> None:
+        """Set up class-level resources, including initializing the data file.
+
         This method runs once before all tests in this class.
         """
         cls.file = InitializeFile().file
 
-    def test_initialize_file_columns_and_data(self):
-        """
-        Test that InitializeFile creates the required DataFrame with correct columns and data.
+    def test_initialize_file_columns_and_data(self) -> None:
+        """Test that InitializeFile creates the required DataFrame with correct columns and data.
+
         Verifies:
         - DataFrame is not empty
         - Required columns exist
         - Specific columns have numeric data types
         """
-        self.assertFalse(self.file.empty, "DataFrame is empty")
+        assert not self.file.empty, "DataFrame is empty"
         required_columns = [
-            'age', 'BMI', 'sAA_level_baseline', 'change_image_sAA_level',
-            'cortisol_level_baseline', 'change_CPS_cortisol_level',
-            'positive_image', 'negative_image'
+            "age", "BMI", "sAA_level_baseline", "change_image_sAA_level",
+            "cortisol_level_baseline", "change_CPS_cortisol_level",
+            "positive_image", "negative_image"
         ]
         for column in required_columns:
-            self.assertIn(column, self.file.columns, f"Missing column: {column}")
+            assert column in self.file.columns, f"Missing column: {column}"
 
         # Verify data types for specific columns
-        self.assertTrue(pd.api.types.is_numeric_dtype(self.file['age']), "Age column should be numeric")
-        self.assertTrue(pd.api.types.is_numeric_dtype(self.file['BMI']), "BMI column should be numeric")
+        assert pd.api.types.is_numeric_dtype(self.file["age"]), "Age column should be numeric"
+        assert pd.api.types.is_numeric_dtype(self.file["BMI"]), "BMI column should be numeric"
 
-    def test_chi_square_results(self):
-        """
-        Test the chi_square function with mock data to ensure correct output values.
+    def test_chi_square_results(self) -> None:
+        """Test the chi_square function with mock data to ensure correct output values.
+
         Verifies:
         - Chi-square statistic is positive
         - p-value is within the range [0, 1]
         """
         prepared_data = pd.DataFrame({
-            'Group': ['NC', 'HC'],
-            'Responders': [20, 18],
-            'Non-Responders': [10, 12]
+            "Group": ["NC", "HC"],
+            "Responders": [20, 18],
+            "Non-Responders": [10, 12]
         })
         chi2, p, _ = chi_square(prepared_data)
 
         # Verify chi-square results
-        self.assertGreater(chi2, 0, "Chi-square value should be positive")
-        self.assertGreaterEqual(p, 0, "p-value should be >= 0")
-        self.assertLessEqual(p, 1, "p-value should be <= 1")
+        assert chi2 > 0, "Chi-square value should be positive"
+        assert p >= 0, "p-value should be >= 0"
+        assert p <= 1, "p-value should be <= 1"
 
-    def test_analyze_saa_response_accuracy(self):
-        """
-        Test analyze_saa_response for valid output structure and meaningful results.
+    def test_analyze_saa_response_accuracy(self) -> None:
+        """Test analyze_saa_response for valid output structure and meaningful results.
+
         Verifies:
         - Output structure contains expected keys
         - Numerical results are valid
@@ -100,40 +104,35 @@ class TestProjectFunctionsAdvanced(unittest.TestCase):
         results = analyze_saa_response(self.file)
 
         # Check the structure of the results
-        self.assertIn('anova_results', results, "Missing 'anova_results' in output")
-        self.assertIn('effect_size', results, "Missing 'effect_size' in output")
-        self.assertIn('summary_statistics', results, "Missing 'summary_statistics' in output")
+        assert "anova_results" in results, "Missing 'anova_results' in output"
+        assert "effect_size" in results, "Missing 'effect_size' in output"
+        assert "summary_statistics" in results, "Missing 'summary_statistics' in output"
 
         # Verify numerical correctness
-        self.assertIsInstance(results['anova_results']['f_statistic'], float, "F-statistic should be a float")
-        self.assertIsInstance(results['anova_results']['p_value'], float, "p-value should be a float")
-        self.assertGreater(results['anova_results']['f_statistic'], 0, "F-statistic should be positive")
-        self.assertGreaterEqual(results['anova_results']['p_value'], 0, "p-value should be >= 0")
-        self.assertLessEqual(results['anova_results']['p_value'], 1, "p-value should be <= 1")
+        assert isinstance(results["anova_results"]["f_statistic"], float), "F-statistic should be a float"
+        assert isinstance(results["anova_results"]["p_value"], float), "p-value should be a float"
+        assert results["anova_results"]["p_value"] >= 0, "p-value should be >= 0"
+        assert results["anova_results"]["p_value"] <= 1, "p-value should be <= 1"
 
-    def test_plot_difference_sAA_responses_no_exceptions(self):
-        """
-        Test that plot_difference_sAA_responses runs without exceptions.
-        """
+    def test_plot_difference_saa_responses_no_exceptions(self) -> None:
+        """Test that plot_difference_saa_responses runs without exceptions."""
         try:
-            plot_difference_sAA_responses(self.file)
+            plot_difference_saa_responses(self.file)
         except Exception as e:
-            self.fail(f"plot_difference_sAA_responses raised an exception: {e}")
+            self.fail(f"plot_difference_saa_responses raised an exception: {e}")
 
-    def test_statistics_of_sAA_responses_structure(self):
-        """
-        Test that statistics_of_sAA_responses produces a valid output without errors.
-        """
+    def test_statistics_of_saa_responses_structure(self) -> None:
+        """Test that statistics_of_saa_responses produces a valid output without errors."""
         results = analyze_saa_response(self.file)
 
         try:
-            statistics_of_sAA_responses(results)
+            statistics_of_saa_responses(results)
         except Exception as e:
-            self.fail(f"statistics_of_sAA_responses raised an exception: {e}")
+            self.fail(f"statistics_of_saa_responses raised an exception: {e}")
 
-    def test_visualization_functions(self):
-        """
-        Test that visualization functions run without errors and produce expected results.
+    def test_visualization_functions(self) -> None:
+        """Test that visualization functions run without errors and produce expected results.
+
         Includes:
         - plot_positive_images_responses
         - plot_negative_images_responses
@@ -144,35 +143,34 @@ class TestProjectFunctionsAdvanced(unittest.TestCase):
         except Exception as e:
             self.fail(f"Visualization function raised an exception: {e}")
 
-    def test_missing_columns_error_handling(self):
-        """
-        Test that functions handle missing columns gracefully.
+    def test_missing_columns_error_handling(self) -> None:
+        """Test that functions handle missing columns gracefully.
+
         Verifies:
         - analyze_saa_response raises KeyError when required columns are missing
         """
         modified_file = self.file.copy()
-        modified_file.drop(columns=['sAA_level_baseline'], inplace=True)
+        modified_file = modified_file.drop(columns=["sAA_level_baseline"])
 
-        with self.assertRaises(KeyError) as context:
+        with pytest.raises(KeyError) as context:
             analyze_saa_response(modified_file)
-        self.assertIn('sAA_level_baseline', str(context.exception))
+        assert "sAA_level_baseline" in str(context.value)
 
-    def test_edge_cases(self):
-        """
-        Test edge cases such as empty DataFrame or extreme values.
-        """
+    def test_edge_cases(self) -> None:
+        """Test edge cases such as empty DataFrame or extreme values."""
         empty_file = pd.DataFrame()
 
         # Test empty DataFrame for missing columns
-        with self.assertRaises(KeyError) as context:
+        with pytest.raises(KeyError) as context:
             analyze_saa_response(empty_file)
-        self.assertIn('change_image_sAA_level', str(context.exception))
-        self.assertIn('change_CPS_cortisol_level', str(context.exception))
-        self.assertIn('sAA_level_baseline', str(context.exception))
+        assert "change_image_sAA_level" in str(context.value)
+        assert "change_CPS_cortisol_level" in str(context.value)
+        assert "sAA_level_baseline" in str(context.value)
+        assert "cortisol_level_baseline" in str(context.value)
 
         # Test extreme values
         extreme_file = self.file.copy()
-        extreme_file['sAA_level_baseline'] = extreme_file['sAA_level_baseline'] * 1e6  # Inflate values
+        extreme_file["sAA_level_baseline"] = extreme_file["sAA_level_baseline"] * 1e6  # Inflate values
 
         try:
             analyze_saa_response(extreme_file)
@@ -180,30 +178,24 @@ class TestProjectFunctionsAdvanced(unittest.TestCase):
             self.fail(f"analyze_saa_response failed with extreme values: {e}")
 
 class MockAnovaResult:
-    """
-    Mock class to simulate ANOVA result objects for testing.
-    """
-    def __init__(self, pvalue):
+    """Mock class to simulate ANOVA result objects for testing."""
+    def __init__(self, pvalue: float) -> None:
         self.pvalue = pvalue
 
 class TestPlotCortisolPhasePillEffects(unittest.TestCase):
-    """
-    Unit tests for the plot_cortisol_phase_pill_effects function.
-    """
+    """Unit tests for the plot_cortisol_phase_pill_effects function."""
 
-    def test_valid_data(self):
-        """
-        Test plot_cortisol_phase_pill_effects with valid data to ensure no exceptions occur.
-        """
+    def test_valid_data(self) -> None:
+        """Test plot_cortisol_phase_pill_effects with valid data to ensure no exceptions occur."""
         nc_data = pd.DataFrame({
-            'phase': ['follicular', 'luteal'],
-            'cortisol_level_baseline': [0.2, 0.1],
-            'cortisol_change': [0.05, 0.02]
+            "phase": ["follicular", "luteal"],
+            "cortisol_level_baseline": [0.2, 0.1],
+            "cortisol_change": [0.05, 0.02]
         })
         hc_data = pd.DataFrame({
-            'pill_type': ['monophasic', 'triphasic'],
-            'cortisol_level_baseline': [0.15, 0.25],
-            'cortisol_change': [0.03, 0.04]
+            "pill_type": ["monophasic", "triphasic"],
+            "cortisol_level_baseline": [0.15, 0.25],
+            "cortisol_change": [0.03, 0.04]
         })
         anova_nc_baseline = MockAnovaResult(pvalue=0.05)
         anova_nc_change = MockAnovaResult(pvalue=0.01)
