@@ -150,11 +150,11 @@ class TestProjectFunctionsAdvanced(unittest.TestCase):
         - analyze_saa_response raises KeyError when required columns are missing
         """
         modified_file = self.file.copy()
-        modified_file = modified_file.drop(columns=["sAA_level_baseline"])
+        modified_file = modified_file.drop(columns=["change_image_sAA_level"])
 
         with pytest.raises(KeyError) as context:
             analyze_saa_response(modified_file)
-        assert "sAA_level_baseline" in str(context.value)
+        assert "change_image_sAA_level" in str(context.value)
 
     def test_edge_cases(self) -> None:
         """Test edge cases such as empty DataFrame or extreme values."""
@@ -164,13 +164,10 @@ class TestProjectFunctionsAdvanced(unittest.TestCase):
         with pytest.raises(KeyError) as context:
             analyze_saa_response(empty_file)
         assert "change_image_sAA_level" in str(context.value)
-        assert "change_CPS_cortisol_level" in str(context.value)
-        assert "sAA_level_baseline" in str(context.value)
-        assert "cortisol_level_baseline" in str(context.value)
 
         # Test extreme values
         extreme_file = self.file.copy()
-        extreme_file["sAA_level_baseline"] = extreme_file["sAA_level_baseline"] * 1e6  # Inflate values
+        extreme_file["change_image_sAA_level"] = extreme_file["change_image_sAA_level"] * 1e6  # Inflate values
 
         try:
             analyze_saa_response(extreme_file)

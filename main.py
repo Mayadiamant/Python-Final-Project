@@ -7,7 +7,7 @@ sys.path.append(r"C:/Users/matan/OneDrive/שולחן העבודה/python/project
 sys.path.append(r"C:/Users/matan/OneDrive/שולחן העבודה/python/project/src/functions")
 
 # Import project-specific modules
-from src.functions.calculate import analyze_cortisol_data, analyze_saa_response, calculate_two_way_anova_with_viz_negative, calculate_two_way_anova_with_viz_positive, chi_square
+from src.functions.calculate import analyze_cortisol_data, analyze_saa_response, calculate_two_way_anova_with_viz, chi_square
 from src.functions.general import prepare_data_from_csv
 from src.functions.visualization import (
     heat_map,
@@ -66,7 +66,7 @@ women in the HC group and women in the NC group, according to the cortisol respo
 """
 # Analyze and visualize responses to negative images
 plot_negative_images_responses(data)
-group_means_negative, anova_table_negative = calculate_two_way_anova_with_viz_negative(data)
+group_means_negative, anova_table_negative = calculate_two_way_anova_with_viz(data, "negative_image")
 heat_map(group_means_negative, "negative_image")
 vizualizations_two_way_anova(anova_table_negative)
 
@@ -76,7 +76,7 @@ and women in the NC group, according to the cortisol response and the sAA respon
 """
 # Analyze and visualize responses to positive images
 plot_positive_images_responses(data)
-group_means_positive, anova_table_positive = calculate_two_way_anova_with_viz_positive(data)
+group_means_positive, anova_table_positive = calculate_two_way_anova_with_viz(data, "positive_image")
 heat_map(group_means_positive, "positive_image")
 vizualizations_two_way_anova(anova_table_positive)
 

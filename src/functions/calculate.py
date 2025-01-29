@@ -23,19 +23,15 @@ def analyze_saa_response(data: pd.DataFrame ) -> dict:
     Raises:
         KeyError: If the columns are missing
     """
-    required_columns = [
-        "change_image_sAA_level", "cortisol_level_baseline",
-        "change_CPS_cortisol_level", "sAA_level_baseline"
-    ]
-    missing_columns = [col for col in required_columns if col not in data.columns]
-    if missing_columns:
-        msg = f"Missing required columns: {", ".join(missing_columns)}"
-        raise KeyError(msg)
+    if "change_image_sAA_level" not in data.columns:
+        raise KeyError("Missing required column: change_image_sAA_level")
     # Rest of the function logic...
 
     # Create separate groups for HC and NC
-    hc_group = data["change_image_sAA_level"][42:].dropna()
-    nc_group = data["change_image_sAA_level"][:42].dropna()
+    hc_group = data["change_image_sAA_level"][42:]
+    nc_group = data["change_image_sAA_level"][:42]
+    if len(hc_group) == 0 or len(nc_group) == 0:
+        raise ValueError("One of the groups is empty.")
     # Perform one-way ANOVA
     f_statistic, p_value = f_oneway(hc_group,nc_group)
     # Calculate descriptive statistics
@@ -121,73 +117,43 @@ def chi_square(data: pd.DataFrame) -> tuple:
         chi2, p, _, _ = chi2_contingency(contingency_table)
         return chi2, p, contingency_table
 
-def calculate_two_way_anova_with_viz_positive(data: pd.DataFrame) -> tuple:
-    """Calculates a Two-Way ANOVA with interaction effects for positive image ratings.
+def calculate_two_way_anova_with_viz(data: pd.DataFrame, val: str) -> tuple:
+    """Calculates a Two-Way ANOVA with interaction effects for emotional stimuli image ratings.
 
     Parameters:
     data (pd.DataFrame): The DataFrame for analysis
+    val (str): The emotional stimuli
 
     Returns:
     tuple:
-        - pd.DataFrame: Group means for positive image ratings
+        - pd.DataFrame: Group means for emotional stimuli image ratings
         - pd.DataFrame: ANOVA table containing F-statistics and p-values
 
     Raises:
     KeyError: If required columns are missing or not categorized properly
     """
-    required_columns = {"responsive_state_SAA", "responsive_state_cortisol", "status", "positive_image"}
-
-    if not required_columns.issubset(data.columns):
-        missing_cols = required_columns - set(data.columns)
+    required_columns = ["responsive_state_SAA", "responsive_state_cortisol", "status", val]
+    missing_cols = [col for col in required_columns if col not in data.columns]
+    if missing_cols:
         msg = f"Missing required columns: {', '.join(missing_cols)}"
         raise KeyError(msg)
 
+
     try:
         # Categorize into responders and non-responders
         data["saa_responders"] = np.where(data["responsive_state_SAA"] == "responders", "SAA Responders", "SAA Nonresponders")
         data["cortisol_responders"] = np.where(data["responsive_state_cortisol"] == "responders", "Cortisol Responders", "Cortisol Nonresponders")
 
         # Calculate means for each group (by status and responder type)
-        group_means = data.groupby(["status", "saa_responders", "cortisol_responders"]).agg({"positive_image": "mean"}).reset_index()
+        group_means = data.groupby(["status", "saa_responders", "cortisol_responders"]).agg({val: "mean"}).reset_index()
 
     except KeyError as e:
         msg = "Error categorizing responder states. Ensure 'status', 'responsive_state_SAA' and 'responsive_state_cortisol' exist."
         raise KeyError(msg) from e
 
     # Perform the Two-Way ANOVA
-    model = ols("positive_image ~ C(status) * C(saa_responders) * C(cortisol_responders)", data=data).fit()
-    anova_table = sm.stats.anova_lm(model, typ=2)
-
-    return group_means, anova_table
-
-
-
-def calculate_two_way_anova_with_viz_negative(data: pd.DataFrame) -> tuple:
-    """Calculates a Two-Way ANOVA with interaction effects for negative image ratings.
-
-    Parameters:
-    data (pd.DataFrame): The DataFrame for analysis
-    Returns:
-    tuple:
-        - pd.DataFrame: Group means for negative image ratings
-        - pd.DataFrame: ANOVA table containing F-statistics and p-values
-    Raises:
-    KeyError: If required columns are missing or not categorized properly
-    """
-    try:
-        # Categorize into responders and non-responders
-        data["saa_responders"] = np.where(data["responsive_state_SAA"] == "responders", "SAA Responders", "SAA Nonresponders")
-        data["cortisol_responders"] = np.where(data["responsive_state_cortisol"] == "responders", "Cortisol Responders", "Cortisol Nonresponders")
-        # Calculate means for each group (by status and responder type)
-        group_means = data.groupby(["status", "saa_responders", "cortisol_responders"]).agg({"negative_image": "mean"}).reset_index()
-
-    except KeyError as e:
-        # Handle missing categorization columns
-        msg = "Error categorizing responder states. Ensure 'status', 'responsive_state_SAA' and 'responsive_state_cortisol' exist."
-        raise KeyError(msg) from e
-
-    # Perform the Two-Way ANOVA
-    model = ols("negative_image ~ C(status) * C(saa_responders) * C(cortisol_responders)", data=data).fit()
+    formula = f"{val} ~ C(status) * C(saa_responders) * C(cortisol_responders)"
+    model = ols(formula, data=data).fit()
     anova_table = sm.stats.anova_lm(model, typ=2)
 
     return group_means, anova_table

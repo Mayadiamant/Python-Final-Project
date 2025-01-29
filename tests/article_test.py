@@ -5,10 +5,11 @@ It includes:
 - Plotting functionalities with Matplotlib
 - File handling using InitializeFile
 """
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
-import panda as pd
-
+import pandas as pd
+sys.path.append(r"C:\Users\matan\OneDrive\שולחן העבודה\python\project")
 from src.objects.initialize_file import InitializeFile
 
 

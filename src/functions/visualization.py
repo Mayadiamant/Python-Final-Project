@@ -372,8 +372,8 @@ def heat_map(group_means: pd.DataFrame, val: str) -> None:
     Raises:
         KeyError: If required columns are missing from the data.
     """
-    required_columns = {"saa_responders", "cortisol_responders", "status", val}
-    missing_columns = required_columns - set(group_means.columns)
+    required_columns = ["saa_responders", "cortisol_responders", "status", val]
+    missing_columns = [col for col in required_columns if col not in group_means.columns]
     if missing_columns:
         msg = f"Missing required columns: {', '.join(missing_columns)}"
         raise KeyError(msg)
@@ -407,11 +407,12 @@ def vizualizations_two_way_anova(anova_table: pd.DataFrame) -> None:
     Raises:
         KeyError: If required columns are missing from the data.
     """
-    required_columns = {"F", "PR(>F)"}
-    if not required_columns.issubset(anova_table.columns):
-        missing_columns = required_columns - set(anova_table.columns)
+    required_columns = ["F", "PR(>F)"]
+    missing_columns = [col for col in required_columns if col not in anova_table.columns]
+    if missing_columns:
         msg = f"Missing required columns: {', '.join(missing_columns)}"
         raise KeyError(msg)
+
 
     # Visualization of ANOVA F-Values and p-Values (filtering for 'status' effects only)
     anova_viz = anova_table.reset_index().rename(columns={"index": "Effect"})
